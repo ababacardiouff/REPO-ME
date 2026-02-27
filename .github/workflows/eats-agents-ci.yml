@@ -1,0 +1,23 @@
+name: Eats Agents CI
+
+on:
+  push:
+    paths:
+      - "src/api/eats/internal/**"
+      - "src/middleware/rbac.ts"
+      - "migrations/103_eats_internal_agents_rbac.sql"
+      - "helm/eats-agents/**"
+      - "tests/eats.agents.test.ts"
+      - "package.json"
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - run: npm ci
+      - run: npm run test
+      - run: npm run build
