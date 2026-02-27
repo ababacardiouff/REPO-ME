@@ -1,38 +1,25 @@
-import bodyParser from "body-parser";
-import express from "express";
-import docsRoutes from "./api/eats/documents";
-import eatsInternalRoutes from "./api/eats/internal";
-import onboardingRoutes from "./api/eats/onboarding";
-import vendorPlansRoutes from "./api/vendorPlans.routes";
-import vendorAdminRoutes from "./api/vendorPlans.admin.routes";
-import molamPayWebhook from "./api/webhooks/molamPay";
-import { startDocumentWorker } from "./workers/eatsDocumentWorker";
-import { startOnboardingWorker } from "./workers/eatsOnboardingWorker";
-import { startSubscriptionRenewalWorker } from "./workers/subscriptionRenewalWorker";
+import app from "./app";
+import { connectProducer } from "./infra/kafka";
+import { dispatchOutbox } from "./workers/outbox";
 
-const app = express();
-app.use(bodyParser.json());
+const port = Number(process.env.PORT || 3000);
 
-app.use("/api/eats/onboarding", onboardingRoutes);
-app.use("/api/eats/documents", docsRoutes);
-app.use("/api/eats/internal", eatsInternalRoutes);
-app.use("/api/eats/plans", vendorPlansRoutes);
-app.use("/api/eats/plans/admin", vendorAdminRoutes);
-app.use("/api/webhooks", molamPayWebhook);
-app.get("/health", (_, res) => res.json({ ok: true }));
+export async function main() {
+  await connectProducer();
+  setInterval(() => {
+    void dispatchOutbox();
+  }, 5000);
 
-export async function startServer() {
-  const port = Number(process.env.PORT || 3001);
-  app.listen(port, async () => {
-    console.log("Eats service running on", port);
-    startOnboardingWorker().catch((e) => console.error(e));
-    startDocumentWorker().catch((e) => console.error(e));
-    startSubscriptionRenewalWorker();
+  app.listen(port, () => {
+    console.log(`Molam Eats Menu API listening on ${port}`);
   });
 }
 
 if (require.main === module) {
-  void startServer();
+  main().catch((err) => {
+    console.error("Fatal startup error", err);
+    process.exit(1);
+  });
 }
 
 export default app;

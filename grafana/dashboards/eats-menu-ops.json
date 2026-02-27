@@ -1,0 +1,42 @@
+{
+  "id": null,
+  "uid": "molam-eats-ops",
+  "title": "Molam Eats — Menu Service (Ops)",
+  "timezone": "browser",
+  "schemaVersion": 27,
+  "version": 2,
+  "panels": [
+    {
+      "type": "stat",
+      "title": "Outbox Lag",
+      "targets": [{ "expr": "eats_outbox_lag", "refId": "A" }],
+      "gridPos": { "h": 4, "w": 6, "x": 0, "y": 0 }
+    },
+    {
+      "type": "timeseries",
+      "title": "Menu Creates per min",
+      "targets": [{ "expr": "rate(eats_menu_creates_total[1m])", "legendFormat": "{{vendor_id}}", "refId": "A" }],
+      "gridPos": { "h": 6, "w": 12, "x": 6, "y": 0 }
+    },
+    {
+      "type": "timeseries",
+      "title": "HTTP 5xx Rate",
+      "targets": [{ "expr": "sum(rate(eats_http_requests_total{status_code=~\"5..\"}[1m]))", "refId": "B" }],
+      "gridPos": { "h": 4, "w": 6, "x": 0, "y": 4 }
+    },
+    {
+      "type": "timeseries",
+      "title": "API Latency P95",
+      "targets": [{ "expr": "histogram_quantile(0.95, sum(rate(eats_http_request_duration_seconds_bucket[5m])) by (le))", "refId": "C" }],
+      "gridPos": { "h": 4, "w": 6, "x": 6, "y": 6 }
+    },
+    {
+      "type": "table",
+      "title": "Recent FATIMA Failures",
+      "targets": [{ "expr": "increase(eats_Fatima_validation_failures_total[10m])", "refId": "D" }],
+      "gridPos": { "h": 6, "w": 12, "x": 0, "y": 10 }
+    }
+  ],
+  "templating": { "list": [] },
+  "annotations": { "list": [] }
+}

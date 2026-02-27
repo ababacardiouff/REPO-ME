@@ -1,0 +1,36 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: eats-menu
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      app: eats-menu
+  template:
+    metadata:
+      labels:
+        app: eats-menu
+    spec:
+      containers:
+        - name: eats-menu
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          ports:
+            - name: http
+              containerPort: 3000
+          env:
+            - name: DATABASE_URL
+              valueFrom:
+                secretKeyRef:
+                  name: eats-menu-secrets
+                  key: DATABASE_URL
+            - name: FATIMA_URL
+              valueFrom:
+                secretKeyRef:
+                  name: eats-menu-secrets
+                  key: FATIMA_URL
+            - name: FATIMA_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: eats-menu-secrets
+                  key: FATIMA_KEY

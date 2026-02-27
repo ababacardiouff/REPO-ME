@@ -1,0 +1,38 @@
+groups:
+  - name: eats.rules
+    rules:
+      - alert: EatsOutboxBacklogHigh
+        expr: eats_outbox_lag > 1000
+        for: 5m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Eats outbox backlog high ({{ $value }})"
+          description: "There are more than 1000 unprocessed events in eats_outbox for >5m. Check outbox worker and Kafka."
+
+      - alert: EatsFatimaFailuresSpike
+        expr: increase(eats_Fatima_validation_failures_total[5m]) > 10
+        for: 2m
+        labels:
+          severity: warning
+        annotations:
+          summary: "FATIMA failures spike"
+          description: "FATIMA validation failures increased by more than 10 in 5m."
+
+      - alert: EatsHighErrorRate
+        expr: increase(eats_http_requests_total{status_code=~"5.."}[5m]) / increase(eats_http_requests_total[5m]) > 0.01
+        for: 3m
+        labels:
+          severity: critical
+        annotations:
+          summary: "High error rate on Eats Menu service"
+          description: "More than 1% of requests returned 5xx in the last 5 minutes."
+
+      - alert: EatsAPILatencyP95
+        expr: histogram_quantile(0.95, sum(rate(eats_http_request_duration_seconds_bucket[5m])) by (le)) > 1
+        for: 3m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High API latency P95"
+          description: "95th percentile latency > 1s over 5m."
