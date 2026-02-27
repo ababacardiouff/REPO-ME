@@ -1,0 +1,27 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: eats-agents
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      app: eats-agents
+  template:
+    metadata:
+      labels:
+        app: eats-agents
+    spec:
+      containers:
+        - name: eats-agents
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          ports:
+            - containerPort: {{ .Values.service.targetPort }}
+          env:
+            - name: DATABASE_URL
+              value: {{ .Values.env.DATABASE_URL | quote }}
+            - name: FATIMA_URL
+              value: {{ .Values.env.FATIMA_URL | quote }}
+            - name: MOLAM_ID_URL
+              value: {{ .Values.env.MOLAM_ID_URL | quote }}
