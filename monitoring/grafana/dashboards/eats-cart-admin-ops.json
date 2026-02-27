@@ -1,0 +1,27 @@
+{
+  "title": "Eats Cart Admin Ops",
+  "schemaVersion": 38,
+  "panels": [
+    {
+      "type": "timeseries",
+      "title": "Multi-day cart growth",
+      "targets": [{ "expr": "sum(eats_cart_items_added_total)" }],
+      "gridPos": { "x": 0, "y": 0, "w": 12, "h": 8 }
+    },
+    {
+      "type": "timeseries",
+      "title": "Checkout latency P95",
+      "targets": [{ "expr": "histogram_quantile(0.95, sum(rate(eats_cart_checkout_latency_seconds_bucket[5m])) by (le))" }],
+      "gridPos": { "x": 12, "y": 0, "w": 12, "h": 8 }
+    },
+    {
+      "type": "barchart",
+      "title": "Scheduled vs Confirmed Orders",
+      "targets": [
+        { "expr": "sum(eats_cart_schedules_total{status=\"PENDING\"})", "legendFormat": "pending" },
+        { "expr": "sum(eats_cart_schedules_total{status=\"CONFIRMED\"})", "legendFormat": "confirmed" }
+      ],
+      "gridPos": { "x": 0, "y": 8, "w": 24, "h": 8 }
+    }
+  ]
+}
