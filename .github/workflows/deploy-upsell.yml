@@ -1,0 +1,46 @@
+name: Deploy Upsell & FATIMA Mock
+
+on:
+  push:
+    branches: ["main"]
+    paths:
+      - "briques/06-upsell/**"
+      - "helm/upsell/**"
+      - ".github/workflows/deploy-upsell.yml"
+
+jobs:
+  build_and_push:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build upsell
+        run: |
+          docker build -t registry.molam.com/upsell:${{ github.sha }} ./briques/06-upsell
+          echo "${{ secrets.REGISTRY_PASS }}" | docker login registry.molam.com -u ${{ secrets.REGISTRY_USER }} --password-stdin
+          docker push registry.molam.com/upsell:${{ github.sha }}
+      - name: Build Fatima-mock
+        run: |
+          docker build -t registry.molam.com/Fatima-mock:staging ./briques/06-upsell/Fatima-mock
+          docker push registry.molam.com/Fatima-mock:staging
+
+  deploy:
+    needs: build_and_push
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup kubectl
+        uses: azure/setup-kubectl@v3
+        with:
+          version: "v1.27.1"
+      - name: Kubeconfig
+        run: |
+          mkdir -p ~/.kube
+          echo "${{ secrets.KUBECONFIG }}" > ~/.kube/config
+      - name: Deploy upsell
+        run: |
+          helm upgrade --install upsell helm/upsell \
+            --namespace molam \
+            --set image.repository=registry.molam.com/upsell \
+            --set image.tag=${{ github.sha }}
+      - name: Deploy Fatima-mock
+        run: kubectl apply -f briques/06-upsell/Fatima-mock/k8s-Fatima-mock.yaml -n molam

@@ -1,0 +1,43 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: upsell
+  labels:
+    app: upsell
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      app: upsell
+  template:
+    metadata:
+      labels:
+        app: upsell
+    spec:
+      containers:
+        - name: upsell
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 3000
+          env:
+            - name: DATABASE_URL
+              valueFrom:
+                secretKeyRef:
+                  name: upsell-secrets
+                  key: DATABASE_URL
+            - name: KAFKA_BROKERS
+              valueFrom:
+                secretKeyRef:
+                  name: upsell-secrets
+                  key: KAFKA_BROKERS
+            - name: FATIMA_URL
+              valueFrom:
+                secretKeyRef:
+                  name: upsell-secrets
+                  key: FATIMA_URL
+            - name: FATIMA_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: upsell-secrets
+                  key: FATIMA_KEY

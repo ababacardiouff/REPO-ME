@@ -1,0 +1,6 @@
+apiVersion: v2
+name: upsell
+description: "Molam Shop — Upsell & Cross-sell Engine"
+type: application
+version: 1.0.0
+appVersion: "1.0.0"

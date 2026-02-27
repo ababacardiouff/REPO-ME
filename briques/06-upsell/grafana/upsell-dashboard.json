@@ -1,0 +1,27 @@
+{
+  "dashboard": {
+    "id": null,
+    "uid": "upsell-metrics",
+    "title": "Upsell Engine - Metrics",
+    "timezone": "browser",
+    "schemaVersion": 27,
+    "version": 1,
+    "panels": [
+      {
+        "type": "graph",
+        "title": "Upsell Requests (per min)",
+        "targets": [{ "expr": "rate(upsell_requests_total[1m])", "legendFormat": "req/s" }]
+      },
+      {
+        "type": "graph",
+        "title": "FATIMA latency (p95 ms)",
+        "targets": [{ "expr": "histogram_quantile(0.95, sum(rate(Fatima_request_duration_seconds_bucket[5m])) by (le))", "legendFormat": "Fatima_p95" }]
+      },
+      {
+        "type": "stat",
+        "title": "Bundle accepted / served",
+        "targets": [{ "expr": "increase(upsell_bundle_accepted_total[24h])", "legendFormat": "accepted_24h" }]
+      }
+    ]
+  }
+}
