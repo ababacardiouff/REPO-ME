@@ -111,6 +111,69 @@ model EatsItemAllergen {
   @@map("eats_item_allergens")
 }
 
+
+model EatsProduct {
+  id           String   @id @default(uuid())
+  vendorId     String   @map("vendor_id")
+  skuCode      String   @unique @map("sku_code")
+  name         Json
+  description  Json?
+  images       Json?    @default("[]")
+  categoryId   String?  @map("category_id")
+  priceCents   BigInt   @map("price_cents")
+  currency     String
+  country      String?
+  stock        Int      @default(0)
+  isAvailable  Boolean  @default(true) @map("is_available")
+  fatimaScore  Int      @default(100) @map("Fatima_score")
+  avgRating    Float    @default(0) @map("avg_rating")
+  totalReviews Int      @default(0) @map("total_reviews")
+  createdAt    DateTime @default(now()) @map("created_at")
+  updatedAt    DateTime @updatedAt @map("updated_at")
+  variants     EatsProductVariant[]
+  events       EatsProductEvent[]
+
+  @@map("eats_products")
+}
+
+model EatsProductVariant {
+  id          String      @id @default(uuid())
+  productId   String      @map("product_id")
+  variantCode String      @unique @map("variant_code")
+  attributes  Json?       @default("{}")
+  priceCents  BigInt?     @map("price_cents")
+  stock       Int         @default(0)
+  createdAt   DateTime    @default(now()) @map("created_at")
+  product     EatsProduct @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  @@map("eats_product_variants")
+}
+
+model EatsProductEvent {
+  id        BigInt     @id @default(autoincrement())
+  productId String     @map("product_id")
+  eventType String     @map("event_type")
+  meta      Json?      @default("{}")
+  createdAt DateTime   @default(now()) @map("created_at")
+  product   EatsProduct @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  @@map("eats_product_events")
+}
+
+model EatsOrderSnapshot {
+  id              String   @id @default(uuid())
+  vendorId        String?  @map("vendor_id")
+  productId       String?  @map("product_id")
+  skuId           String?  @map("sku_id")
+  buyerId         String?  @map("buyer_id")
+  orderAmountCents BigInt? @map("order_amount_cents")
+  currency        String?
+  status          String   @default("pending")
+  createdAt       DateTime @default(now()) @map("created_at")
+
+  @@map("eats_orders_snapshot")
+}
+
 model EatsOutbox {
   id            BigInt   @id @default(autoincrement())
   aggregateType String?

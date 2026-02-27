@@ -50,6 +50,44 @@ async function main() {
     }
   });
 
+
+  const product = await prisma.eatsProduct.upsert({
+    where: { skuCode: "EATS-TEST-001" },
+    update: {},
+    create: {
+      vendorId: "00000000-0000-0000-0000-000000000000",
+      skuCode: "EATS-TEST-001",
+      name: { fr: "Sandwich Thon", en: "Tuna Sandwich" },
+      description: { fr: "Sandwich classique", en: "Classic tuna sandwich" },
+      images: [{ url: "https://cdn.molam.com/eats/sandwich.jpg", alt: { fr: "Sandwich Thon", en: "Tuna Sandwich" } }],
+      priceCents: BigInt(2500),
+      currency: "XOF",
+      country: "SN",
+      stock: 100,
+      isAvailable: true
+    }
+  });
+
+  await prisma.eatsProductVariant.createMany({
+    data: [
+      {
+        productId: product.id,
+        variantCode: "EATS-TEST-001-S",
+        attributes: { size: "small" },
+        priceCents: BigInt(2000),
+        stock: 50
+      },
+      {
+        productId: product.id,
+        variantCode: "EATS-TEST-001-L",
+        attributes: { size: "large" },
+        priceCents: BigInt(3000),
+        stock: 50
+      }
+    ],
+    skipDuplicates: true
+  });
+
   console.log("Seed done");
 }
 

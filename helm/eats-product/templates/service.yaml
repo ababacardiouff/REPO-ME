@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: eats-product
+  labels:
+    app: eats-product
+spec:
+  type: {{ .Values.service.type }}
+  selector:
+    app: eats-product
+  ports:
+    - name: http
+      port: {{ .Values.service.port }}
+      targetPort: http

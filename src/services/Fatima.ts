@@ -15,3 +15,15 @@ export async function validateItemWithFatima(item: unknown) {
     throw error;
   }
 }
+
+export async function enrichProductWithFatima(productPayload: unknown) {
+  try {
+    const resp = await axios.post(`${FATIMA_URL}/eats/enrich`, productPayload, {
+      headers: { "x-api-key": process.env.FATIMA_KEY || "" },
+      timeout: 5000
+    });
+    return resp.data;
+  } catch {
+    return { error: "Fatima_unavailable" };
+  }
+}

@@ -42,6 +42,10 @@ export const httpRequestsTotal = new Counter("eats_http_requests_total");
 export const menuCreates = new Counter("eats_menu_creates_total");
 export const FatimaValidationFailures = new Counter("eats_Fatima_validation_failures_total");
 export const outboxLagGauge = new Gauge("eats_outbox_lag");
+export const eatsProductViewsTotal = new Counter("eats_product_views_total");
+export const eatsProductAddToCartTotal = new Counter("eats_product_add_to_cart_total");
+export const eatsProductBuyNowTotal = new Counter("eats_product_buy_now_total");
+export const eatsProductFatimaScore = new Gauge("eats_product_Fatima_score");
 
 const register = {
   contentType: "text/plain",
@@ -55,6 +59,14 @@ const register = {
       `${FatimaValidationFailures.name} ${FatimaValidationFailures.get()}`,
       `# TYPE ${outboxLagGauge.name} gauge`,
       `${outboxLagGauge.name} ${outboxLagGauge.get()}`,
+      `# TYPE ${eatsProductViewsTotal.name} counter`,
+      `${eatsProductViewsTotal.name} ${eatsProductViewsTotal.get()}`,
+      `# TYPE ${eatsProductAddToCartTotal.name} counter`,
+      `${eatsProductAddToCartTotal.name} ${eatsProductAddToCartTotal.get()}`,
+      `# TYPE ${eatsProductBuyNowTotal.name} counter`,
+      `${eatsProductBuyNowTotal.name} ${eatsProductBuyNowTotal.get()}`,
+      `# TYPE ${eatsProductFatimaScore.name} gauge`,
+      `${eatsProductFatimaScore.name} ${eatsProductFatimaScore.get()}`,
       `# TYPE ${httpRequestDuration.name} summary`,
       `${httpRequestDuration.name}_count ${httpRequestDuration.getCount()}`
     ].join("\n");
