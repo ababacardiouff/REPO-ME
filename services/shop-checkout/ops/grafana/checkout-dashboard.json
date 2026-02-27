@@ -1,0 +1,40 @@
+{
+  "dashboard": {
+    "id": null,
+    "title": "Molam Shop - Checkout",
+    "tags": ["molam", "shop", "checkout"],
+    "timezone": "browser",
+    "panels": [
+      {
+        "type": "stat",
+        "title": "Orders Created",
+        "targets": [{ "expr": "shop_orders_created_total", "legendFormat": "orders" }],
+        "id": 1
+      },
+      {
+        "type": "graph",
+        "title": "Orders Created Rate",
+        "targets": [{ "expr": "rate(shop_orders_created_total[5m])", "legendFormat": "rate" }],
+        "id": 2
+      },
+      {
+        "type": "stat",
+        "title": "Payment Failures",
+        "targets": [{ "expr": "shop_order_payment_failures_total", "legendFormat": "failures" }],
+        "id": 3
+      },
+      {
+        "type": "graph",
+        "title": "Checkout API Latency P95",
+        "targets": [
+          {
+            "expr": "histogram_quantile(0.95, sum(rate(http_request_duration_seconds_bucket{route='/api/checkout/order'}[5m])) by (le))"
+          }
+        ],
+        "id": 4
+      }
+    ],
+    "schemaVersion": 37,
+    "version": 1
+  }
+}

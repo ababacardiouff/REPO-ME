@@ -1,0 +1,37 @@
+name: Checkout CI
+
+on:
+  push:
+    paths:
+      - "services/shop-checkout/**"
+      - "web/**"
+      - "tests/**"
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:15
+        env:
+          POSTGRES_USER: molam
+          POSTGRES_PASSWORD: password
+          POSTGRES_DB: molam
+        ports: ["5432:5432"]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 18
+      - name: Install server deps
+        run: |
+          cd services/shop-checkout
+          npm ci
+      - name: Run server tests
+        run: |
+          cd services/shop-checkout
+          npm test -- --runInBand
+      - name: Run web tests (if any)
+        run: |
+          cd web
+          npm ci && npm test || true

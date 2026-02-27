@@ -1,0 +1,38 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: shop-checkout
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      app: shop-checkout
+  template:
+    metadata:
+      labels:
+        app: shop-checkout
+    spec:
+      containers:
+        - name: shop-checkout
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          env:
+            - name: DATABASE_URL
+              valueFrom:
+                secretKeyRef:
+                  name: shop-checkout-secrets
+                  key: DATABASE_URL
+            - name: MOLAM_ID_JWKS
+              value: "{{ .Values.env.MOLAM_ID_JWKS }}"
+            - name: ENABLE_MOLAM_GATEWAY
+              value: "{{ .Values.env.ENABLE_MOLAM_GATEWAY }}"
+            - name: ENABLE_STRIPE
+              value: "{{ .Values.env.ENABLE_STRIPE }}"
+            - name: ENABLE_WAVE
+              value: "{{ .Values.env.ENABLE_WAVE }}"
+            - name: KAFKA_BROKERS
+              valueFrom:
+                secretKeyRef:
+                  name: shop-checkout-secrets
+                  key: KAFKA_BROKERS
+          ports:
+            - containerPort: 3000
