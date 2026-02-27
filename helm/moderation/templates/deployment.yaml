@@ -1,0 +1,65 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: moderation
+  labels:
+    app: moderation
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      app: moderation
+  template:
+    metadata:
+      labels:
+        app: moderation
+    spec:
+      containers:
+        - name: moderation
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          imagePullPolicy: IfNotPresent
+          env:
+            - name: DATABASE_URL
+              valueFrom:
+                secretKeyRef:
+                  name: moderation-secrets
+                  key: DATABASE_URL
+            - name: KAFKA_BROKERS
+              valueFrom:
+                secretKeyRef:
+                  name: moderation-secrets
+                  key: KAFKA_BROKERS
+            - name: FATIMA_URL
+              valueFrom:
+                secretKeyRef:
+                  name: moderation-secrets
+                  key: FATIMA_URL
+            - name: FATIMA_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: moderation-secrets
+                  key: FATIMA_KEY
+            - name: WS_PORT
+              value: "{{ .Values.env.WS_PORT }}"
+          ports:
+            - containerPort: 3001
+              name: http
+          readinessProbe:
+            httpGet:
+              path: /healthz
+              port: 3001
+            initialDelaySeconds: 10
+            periodSeconds: 15
+          livenessProbe:
+            httpGet:
+              path: /healthz
+              port: 3001
+            initialDelaySeconds: 30
+            periodSeconds: 20
+          resources:
+            requests:
+              cpu: "{{ .Values.resources.requests.cpu }}"
+              memory: "{{ .Values.resources.requests.memory }}"
+            limits:
+              cpu: "{{ .Values.resources.limits.cpu }}"
+              memory: "{{ .Values.resources.limits.memory }}"

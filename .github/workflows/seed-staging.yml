@@ -1,0 +1,25 @@
+name: Seed Moderation Staging
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "0 2 * * *"
+
+jobs:
+  seed-moderation:
+    runs-on: ubuntu-latest
+    environment: staging
+    steps:
+      - uses: actions/checkout@v4
+      - uses: azure/setup-kubectl@v3
+        with:
+          version: "1.27.0"
+      - uses: azure/setup-helm@v3
+        with:
+          version: "3.12.0"
+      - name: Deploy Helm chart with seeds enabled
+        run: |
+          helm upgrade --install moderation ./helm/moderation \
+            --namespace molam-staging \
+            --create-namespace \
+            --set seed.enabled=true

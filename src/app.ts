@@ -8,6 +8,8 @@ import variantsRouter from "./api/variants";
 import categoriesRouter from "./api/eats/categories";
 import itemsRouter from "./api/eats/items";
 import metricsClient, { outboxLagGauge } from "./infra/metrics";
+import moderationRouter from "./api/moderation";
+import adminModerationRouter from "./api/adminModeration";
 import { metricsMiddleware } from "./middlewares/metricsMiddleware";
 import db from "./db";
 
@@ -22,6 +24,8 @@ app.use("/api/eats/variants", variantsRouter);
 app.use("/api/eats/recommendations", recommendationsRouter);
 app.use("/api/eats/cart", cartRouter);
 app.use("/api/eats/checkout", checkoutRouter);
+app.use("/api/moderation", moderationRouter);
+app.use("/api/admin/moderation", adminModerationRouter);
 
 app.get("/healthz", (_, res) => res.json({ status: "ok" }));
 

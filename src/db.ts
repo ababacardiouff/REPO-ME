@@ -1,14 +1,13 @@
 import { db as pgpDb } from "./infra/db";
 
-type QueryResult = {
+export type QueryResult = {
   rows: any[];
+  rowCount: number;
 };
 
-async function query(text: string, params: any[] = []): Promise<QueryResult> {
+export async function query(text: string, params: any[] = []): Promise<QueryResult> {
   const rows = await pgpDb.any(text, params);
-  return { rows };
+  return { rows, rowCount: rows.length };
 }
 
-export default {
-  query
-};
+export default { query };
