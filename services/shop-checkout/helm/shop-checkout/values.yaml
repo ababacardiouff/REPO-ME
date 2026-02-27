@@ -1,0 +1,18 @@
+image:
+  repository: registry.molam.com/shop-checkout
+  tag: "1.0.0"
+replicaCount: 2
+env:
+  ENABLE_MOLAM_GATEWAY: "true"
+  ENABLE_STRIPE: "true"
+  ENABLE_WAVE: "true"
+  DATABASE_URL: ""
+  MOLAM_ID_JWKS: "https://molam-id/.well-known/jwks.json"
+  KAFKA_BROKERS: ""
+resources:
+  requests:
+    cpu: "200m"
+    memory: "256Mi"
+  limits:
+    cpu: "1"
+    memory: "1Gi"
