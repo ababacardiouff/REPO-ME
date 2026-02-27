@@ -1,0 +1,6 @@
+apiVersion: v2
+name: moderation
+description: "Molam — Moderation & Image Pipeline (Shop & Talk)"
+type: application
+version: 1.0.0
+appVersion: "1.0.0"

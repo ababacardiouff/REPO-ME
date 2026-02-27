@@ -1,26 +1,25 @@
-# Runbook — Brique 5 : Product Page (Molam Eats) — FR
+# Runbook — Brique 6 : Moderation & Image Pipeline (FR)
 
 ## Objectif
-Gérer incidents, replay outbox, FATIMA failures, haute latence.
+Gérer incidents modération, indisponibilité FATIMA, backlog Kafka et faux positifs.
 
-## Commandes pratiques
-- Check service: `kubectl -n molam get pods -l app=eats-product`
-- Logs: `kubectl -n molam logs deploy/eats-product`
-- Outbox lag: `psql $DATABASE_URL -c "SELECT count(*) FROM eats_outbox WHERE processed=false;"`
-- Replay outbox: `node tools/replayOutbox.js --limit=100`
+## Procédures rapides
 
-## Incidents courants
-### 1) Outbox backlog > 1000
-- Restart outbox worker: `kubectl -n molam rollout restart deploy/eats-product`
-- If Kafka down: check brokers, restart Kafka or scale.
+### 1) Vérifier backlog modération
+- SQL: `SELECT count(*) FROM moderation_requests WHERE status='PENDING';`
+- Si > 500, vérifier le lag consumer:
+  `kafka-consumer-groups --bootstrap-server ... --describe --group moderation-worker`
 
-### 2) FATIMA unreachable
-- Set env `FATIMA_MODE=queue-only` in deployment (helm values) and redeploy.
-- Manually run `node scripts/replay_Fatima.js` after FATIMA back.
+### 2) FATIMA inaccessible
+- Vérifier health: `curl $FATIMA_URL/health -H "x-api-key:$FATIMA_KEY"`
+- Si down, basculer en mode conservateur (`FATIMA_MODE=queue-only`) et routage en review manuel.
 
-### 3) API latency high
-- Check DB slow queries: `SELECT pid, query, state, now()-query_start AS duration FROM pg_stat_activity WHERE state='active' ORDER BY duration DESC LIMIT 10;`
-- Scale replicas; examine recent deploys.
+### 3) Fausse suppression signalée
+- Rechercher les `moderation_logs` par `request_id`.
+- Si action == `REGEX_BLOCK`, ouvrir la requête dans l’admin puis override (`ALLOW` ou `SANITIZE`).
+- Documenter l’action dans la note d’audit.
 
-## Escalation
-- Pager to infra on critical alerts (Outbox backlog / API errors >5%).
+## Escalade
+- Backlog outbox > 10k: alerter l’équipe infra Kafka.
+- Erreurs FATIMA répétées: alerter l’équipe FATIMA.
+- Hausse des faux positifs: alerter OPS + support vendeur.

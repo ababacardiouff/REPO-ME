@@ -1,0 +1,15 @@
+{{- if .Values.serviceMonitor.enabled }}
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: moderation-servicemonitor
+  namespace: {{ .Values.serviceMonitor.namespace | default "monitoring" }}
+spec:
+  selector:
+    matchLabels:
+      app: moderation
+  endpoints:
+    - port: http
+      interval: 15s
+      path: /metrics
+{{- end }}
