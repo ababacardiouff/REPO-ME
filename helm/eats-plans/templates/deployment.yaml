@@ -1,0 +1,35 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: eats-plans
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      app: eats-plans
+  template:
+    metadata:
+      labels:
+        app: eats-plans
+    spec:
+      containers:
+        - name: eats-plans
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          ports:
+            - containerPort: 3001
+          env:
+            - name: DATABASE_URL
+              valueFrom:
+                secretKeyRef:
+                  name: eats-plans-secrets
+                  key: DATABASE_URL
+            - name: MOLAM_ID_JWKS
+              valueFrom:
+                secretKeyRef:
+                  name: eats-plans-secrets
+                  key: MOLAM_ID_JWKS
+            - name: MOLAM_PAY_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: eats-plans-secrets
+                  key: MOLAM_PAY_SECRET

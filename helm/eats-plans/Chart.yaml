@@ -1,0 +1,6 @@
+apiVersion: v2
+name: eats-plans
+description: Molam Eats - Vendor Plans
+type: application
+version: 1.0.0
+appVersion: "1.0.0"
