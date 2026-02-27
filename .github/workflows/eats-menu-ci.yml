@@ -1,0 +1,38 @@
+name: Eats Menu CI
+on: [push]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:15
+        env:
+          POSTGRES_PASSWORD: password
+          POSTGRES_USER: molam
+          POSTGRES_DB: molam_eats
+        ports: ['5432:5432']
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - run: npm ci
+      - run: npm run build
+      - run: npx prisma migrate deploy --schema=prisma/schema.prisma
+      - run: npm test
+
+  deploy:
+    needs: test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build and push image
+        uses: docker/build-push-action@v4
+        with:
+          push: true
+          tags: registry.molam.com/eats-menu:${{ github.sha }}
+      - name: Helm deploy
+        uses: azure/setup-helm@v3
+      - run: helm upgrade --install eats-menu helm/eats-menu --namespace molam --set image.repository=registry.molam.com/eats-menu --set image.tag=${{ github.sha }}

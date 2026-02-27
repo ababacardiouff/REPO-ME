@@ -1,0 +1,13 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: eats-menu
+  labels:
+    app: eats-menu
+spec:
+  selector:
+    app: eats-menu
+  ports:
+    - name: http
+      port: 3000
+      targetPort: http

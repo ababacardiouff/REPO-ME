@@ -1,0 +1,124 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model EatsMenuCategory {
+  id        String   @id @default(uuid())
+  vendorId  String
+  code      String?  @unique
+  name      Json
+  parentId  String?
+  position  Int      @default(0)
+  visible   Boolean  @default(true)
+  createdAt DateTime @default(now())
+  items     EatsMenuItem[]
+
+  @@map("eats_menu_categories")
+}
+
+model EatsMenuItem {
+  id                 String   @id @default(uuid())
+  vendorId           String
+  categoryId         String?
+  skuCode            String   @unique
+  name               Json
+  description        Json?
+  defaultPriceCents  BigInt
+  currency           String
+  availability       Json?    @default("{}")
+  images             Json?    @default("[]")
+  status             String   @default("draft")
+  fatimaQualityScore Int      @default(100)
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
+  category           EatsMenuCategory? @relation(fields: [categoryId], references: [id])
+  skus               EatsMenuSku[]
+  modifiers          EatsItemModifierMapping[]
+  allergens          EatsItemAllergen[]
+
+  @@map("eats_menu_items")
+}
+
+model EatsMenuSku {
+  id         String   @id @default(uuid())
+  itemId     String
+  skuCode    String   @unique
+  priceCents BigInt
+  stock      Int      @default(0)
+  attributes Json?    @default("{}")
+  createdAt  DateTime @default(now())
+  item       EatsMenuItem @relation(fields: [itemId], references: [id], onDelete: Cascade)
+
+  @@map("eats_menu_skus")
+}
+
+model EatsModifierGroup {
+  id        String   @id @default(uuid())
+  vendorId  String
+  name      Json
+  rules     Json
+  position  Int      @default(0)
+  createdAt DateTime @default(now())
+  items     EatsModifierItem[]
+  mappings  EatsItemModifierMapping[]
+
+  @@map("eats_modifier_groups")
+}
+
+model EatsModifierItem {
+  id              String @id @default(uuid())
+  groupId         String
+  skuId           String?
+  name            Json
+  priceDeltaCents BigInt @default(0)
+  position        Int    @default(0)
+  group           EatsModifierGroup @relation(fields: [groupId], references: [id], onDelete: Cascade)
+
+  @@map("eats_modifier_items")
+}
+
+model EatsItemModifierMapping {
+  id              String @id @default(uuid())
+  itemId          String
+  modifierGroupId String
+  item            EatsMenuItem @relation(fields: [itemId], references: [id], onDelete: Cascade)
+  modifierGroup   EatsModifierGroup @relation(fields: [modifierGroupId], references: [id], onDelete: Cascade)
+
+  @@map("eats_item_modifier_mapping")
+}
+
+model EatsAllergen {
+  id    String @id @default(uuid())
+  code  String @unique
+  name  Json
+  items EatsItemAllergen[]
+
+  @@map("eats_allergens")
+}
+
+model EatsItemAllergen {
+  itemId     String
+  allergenId String
+  item       EatsMenuItem @relation(fields: [itemId], references: [id], onDelete: Cascade)
+  allergen   EatsAllergen @relation(fields: [allergenId], references: [id], onDelete: Cascade)
+
+  @@id([itemId, allergenId])
+  @@map("eats_item_allergens")
+}
+
+model EatsOutbox {
+  id            BigInt   @id @default(autoincrement())
+  aggregateType String?
+  aggregateId   String?
+  eventType     String?
+  payload       Json?
+  processed     Boolean  @default(false)
+  createdAt     DateTime @default(now())
+
+  @@map("eats_outbox")
+}
