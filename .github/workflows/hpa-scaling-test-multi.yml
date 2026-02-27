@@ -1,0 +1,42 @@
+name: HPA Scaling Test (Multi-Tenant)
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "0 2 * * *"
+
+jobs:
+  scaling-test:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        include:
+          - tenant: eats
+            service_url: EATS_URL
+          - tenant: shop
+            service_url: SHOP_URL
+          - tenant: ads
+            service_url: ADS_URL
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Install k6
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y gnupg software-properties-common
+          curl -s https://dl.k6.io/key.gpg | sudo apt-key add -
+          echo "deb https://dl.k6.io/deb stable main" | sudo tee /etc/apt/sources.list.d/k6.list
+          sudo apt-get update
+          sudo apt-get install -y k6
+
+      - name: Run tenant load test & push metrics
+        env:
+          URL: ${{ secrets[matrix.service_url] }}
+        run: |
+          K6_PROMETHEUS_RW_SERVER_URL=${{ secrets.PROMETHEUS_RW_URL }} \
+          K6_PROMETHEUS_RW_TREND_AS_NATIVE_HISTOGRAM=true \
+          k6 run tests/load/hpa-scaling-test.js \
+            -e EATS_PLANS_URL=$URL \
+            -e TENANT=${{ matrix.tenant }}

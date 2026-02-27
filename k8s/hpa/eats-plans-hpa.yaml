@@ -1,0 +1,46 @@
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: eats-plans-hpa
+  namespace: molam-eats
+  labels:
+    app: eats-plans-service
+    module: eats
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: eats-plans-service
+  minReplicas: 3
+  maxReplicas: 20
+  metrics:
+    - type: Resource
+      resource:
+        name: cpu
+        target:
+          type: Utilization
+          averageUtilization: 70
+    - type: Resource
+      resource:
+        name: memory
+        target:
+          type: Utilization
+          averageUtilization: 75
+    - type: Pods
+      pods:
+        metric:
+          name: http_requests_per_second
+        target:
+          type: AverageValue
+          averageValue: "50"
+    - type: Object
+      object:
+        metric:
+          name: http_request_duration_seconds
+        describedObject:
+          apiVersion: networking.k8s.io/v1
+          kind: Ingress
+          name: eats-plans-ingress
+        target:
+          type: Value
+          value: "1"

@@ -2,7 +2,7 @@ name: Eats Plans CI
 
 on:
   push:
-    paths: [ "src/**", "migrations/**", "tests/**" ]
+    paths: [ "src/**", "migrations/**", "tests/**", "monitoring/**", "helm/**", ".github/workflows/eats-plans-ci.yml" ]
   workflow_dispatch:
 
 jobs:
@@ -18,9 +18,9 @@ jobs:
         ports:
           - 5432:5432
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - name: Setup Node
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
           node-version: 20
       - name: Install deps
@@ -32,3 +32,56 @@ jobs:
         run: npm run build
       - name: Test
         run: npm test
+
+  load-test:
+    runs-on: ubuntu-latest
+    needs: test
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Run load test
+        run: |
+          docker run --rm \
+            -v $PWD:/scripts \
+            -e BASE_URL=${{ secrets.STAGING_URL }} \
+            grafana/k6 run /scripts/tests/load/eats_plans_load.test.js
+
+  report-load:
+    runs-on: ubuntu-latest
+    needs: load-test
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Push k6 results to Prometheus
+        run: |
+          docker run --rm \
+            -v $PWD:/k6 \
+            -e K6_PROMETHEUS_RW_SERVER_URL=${{ secrets.PROMETHEUS_PUSH_URL }} \
+            grafana/k6 run \
+            --out prometheus-rw \
+            /k6/tests/load/eats_plans_load.test.js
+
+  stress-test:
+    runs-on: ubuntu-latest
+    needs: report-load
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Run Stress Test (2000 VUs)
+        run: |
+          docker run --rm \
+            -v $PWD:/scripts \
+            -e BASE_URL=${{ secrets.STAGING_URL }} \
+            grafana/k6 run /scripts/tests/load/eats_plans_stress.test.js
+
+      - name: Push Stress Test Results to Prometheus
+        run: |
+          docker run --rm \
+            -v $PWD:/scripts \
+            -e K6_PROMETHEUS_RW_SERVER_URL=${{ secrets.PROMETHEUS_PUSH_URL }} \
+            grafana/k6 run \
+            --out prometheus-rw \
+            /scripts/tests/load/eats_plans_stress.test.js
