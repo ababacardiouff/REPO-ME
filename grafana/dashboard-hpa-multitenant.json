@@ -1,0 +1,46 @@
+{
+  "title": "Molam Multi-Tenant HPA Scaling",
+  "templating": {
+    "list": [
+      {
+        "name": "tenant",
+        "type": "custom",
+        "options": [
+          { "text": "Eats", "value": "eats" },
+          { "text": "Shop", "value": "shop" },
+          { "text": "Ads", "value": "ads" }
+        ],
+        "current": { "text": "Eats", "value": "eats" }
+      }
+    ]
+  },
+  "panels": [
+    {
+      "type": "graph",
+      "title": "Latency P95",
+      "targets": [
+        {
+          "expr": "histogram_quantile(0.95, sum(rate(http_req_duration_bucket{tenant=~\"$tenant\"}[5m])) by (le))"
+        }
+      ]
+    },
+    {
+      "type": "graph",
+      "title": "Error Rate",
+      "targets": [
+        {
+          "expr": "rate(custom_errors{tenant=~\"$tenant\"}[5m])"
+        }
+      ]
+    },
+    {
+      "type": "graph",
+      "title": "Pods Active",
+      "targets": [
+        {
+          "expr": "kube_deployment_status_replicas{deployment=~\"$tenant.*-service\"}"
+        }
+      ]
+    }
+  ]
+}

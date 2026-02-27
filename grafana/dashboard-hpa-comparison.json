@@ -1,0 +1,40 @@
+{
+  "title": "Molam HPA Scaling Comparison",
+  "panels": [
+    {
+      "type": "heatmap",
+      "title": "Latency Heatmap (Eats vs Shop vs Ads)",
+      "targets": [
+        {
+          "expr": "histogram_quantile(0.95, sum(rate(http_req_duration_bucket{tenant=\"eats\"}[5m])) by (le))",
+          "legendFormat": "Eats"
+        },
+        {
+          "expr": "histogram_quantile(0.95, sum(rate(http_req_duration_bucket{tenant=\"shop\"}[5m])) by (le))",
+          "legendFormat": "Shop"
+        },
+        {
+          "expr": "histogram_quantile(0.95, sum(rate(http_req_duration_bucket{tenant=\"ads\"}[5m])) by (le))",
+          "legendFormat": "Ads"
+        }
+      ],
+      "heatmap": {
+        "color": {
+          "mode": "spectrum",
+          "cardColor": "red",
+          "colorScale": "linear"
+        },
+        "xAxis": {
+          "show": true,
+          "mode": "time"
+        },
+        "yAxis": {
+          "show": true,
+          "format": "ms",
+          "logBase": 1
+        }
+      },
+      "interval": "1h"
+    }
+  ]
+}

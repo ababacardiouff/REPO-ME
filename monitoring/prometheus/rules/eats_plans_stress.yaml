@@ -1,0 +1,21 @@
+groups:
+  - name: eats-plans-stress
+    interval: 30s
+    rules:
+      - alert: EatsPlansStressHighLatency
+        expr: histogram_quantile(0.95, sum(rate(http_request_duration_seconds_bucket{job="eats-plans"}[1m])) by (le)) > 1
+        for: 2m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Molam Eats Plans Stress Test - High latency"
+          description: "p95 > 1s sous forte charge."
+
+      - alert: EatsPlansStressHighError
+        expr: sum(rate(http_requests_total{job="eats-plans",status!~"2.."}[1m])) / sum(rate(http_requests_total{job="eats-plans"}[1m])) > 0.05
+        for: 2m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Molam Eats Plans Stress Test - High error rate"
+          description: "Plus de 5% d’erreurs sous charge élevée."

@@ -1,0 +1,71 @@
+{
+  "id": null,
+  "title": "Molam Eats Plans - Load & Performance",
+  "tags": ["molam", "eats", "plans", "loadtest"],
+  "timezone": "browser",
+  "schemaVersion": 30,
+  "version": 1,
+  "refresh": "10s",
+  "panels": [
+    {
+      "type": "graph",
+      "title": "Requests per second (k6)",
+      "targets": [
+        {
+          "expr": "rate(http_requests_total{job=\"k6\"}[1m])",
+          "legendFormat": "RPS"
+        }
+      ],
+      "datasource": "Prometheus",
+      "gridPos": { "x": 0, "y": 0, "w": 12, "h": 6 }
+    },
+    {
+      "type": "graph",
+      "title": "Request Duration (p95)",
+      "targets": [
+        {
+          "expr": "histogram_quantile(0.95, sum(rate(http_request_duration_seconds_bucket{job=\"eats-plans\"}[5m])) by (le))",
+          "legendFormat": "p95 latency"
+        }
+      ],
+      "datasource": "Prometheus",
+      "gridPos": { "x": 12, "y": 0, "w": 12, "h": 6 }
+    },
+    {
+      "type": "stat",
+      "title": "Error Rate",
+      "targets": [
+        {
+          "expr": "sum(rate(http_requests_total{job=\"eats-plans\",status!~\"2..\"}[5m])) / sum(rate(http_requests_total{job=\"eats-plans\"}[5m]))",
+          "legendFormat": "error rate"
+        }
+      ],
+      "datasource": "Prometheus",
+      "gridPos": { "x": 0, "y": 6, "w": 6, "h": 6 }
+    },
+    {
+      "type": "stat",
+      "title": "Active Users (k6)",
+      "targets": [
+        {
+          "expr": "k6_vus{job=\"k6\"}",
+          "legendFormat": "users"
+        }
+      ],
+      "datasource": "Prometheus",
+      "gridPos": { "x": 6, "y": 6, "w": 6, "h": 6 }
+    },
+    {
+      "type": "table",
+      "title": "API Performance (per endpoint)",
+      "targets": [
+        {
+          "expr": "rate(http_requests_total{job=\"eats-plans\"}[5m])",
+          "legendFormat": "{{handler}} - {{status}}"
+        }
+      ],
+      "datasource": "Prometheus",
+      "gridPos": { "x": 12, "y": 6, "w": 12, "h": 6 }
+    }
+  ]
+}

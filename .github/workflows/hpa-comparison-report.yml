@@ -1,0 +1,28 @@
+name: HPA Scaling Comparison Report
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "0 4 * * *"
+
+jobs:
+  comparison-report:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Generate Grafana PDF Comparison Report
+        run: |
+          mkdir -p reports
+          START=$(date -d '30 minutes ago' +%s000)
+          END=$(date +%s000)
+          curl -s -H "Authorization: Bearer ${{ secrets.GRAFANA_API_KEY }}" \
+            "${{ secrets.GRAFANA_URL }}/api/reports/render/pdf/molam-hpa-comparison?from=$START&to=$END" \
+            --output reports/hpa-comparison-report.pdf
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: hpa-comparison-report
+          path: reports/hpa-comparison-report.pdf

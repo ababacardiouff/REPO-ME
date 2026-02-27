@@ -1,0 +1,30 @@
+groups:
+  - name: eats-plans-alerts
+    interval: 30s
+    rules:
+      - alert: EatsPlansHighErrorRate
+        expr: sum(rate(http_requests_total{job="eats-plans",status!~"2.."}[5m])) / sum(rate(http_requests_total{job="eats-plans"}[5m])) > 0.02
+        for: 2m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Molam Eats Plans - High error rate"
+          description: "Error rate > 2% over the last 5 minutes."
+
+      - alert: EatsPlansHighLatency
+        expr: histogram_quantile(0.95, sum(rate(http_request_duration_seconds_bucket{job="eats-plans"}[5m])) by (le)) > 0.8
+        for: 2m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Molam Eats Plans - High latency"
+          description: "p95 latency > 800ms for the last 5 minutes."
+
+      - alert: EatsPlansLowThroughput
+        expr: rate(http_requests_total{job="eats-plans"}[5m]) < 1
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Molam Eats Plans - Low throughput"
+          description: "Less than 1 request/sec observed for Eats Plans API."

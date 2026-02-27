@@ -1,0 +1,36 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: Fatima-autoscaler
+  namespace: molam
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: Fatima-autoscaler
+  template:
+    metadata:
+      labels:
+        app: Fatima-autoscaler
+    spec:
+      containers:
+        - name: Fatima-autoscaler
+          image: ghcr.io/molam/Fatima-autoscaler:latest
+          env:
+            - name: PROMETHEUS_URL
+              value: "http://prometheus.molam"
+            - name: KUBE_CONFIG
+              value: "/root/.kube/config"
+            - name: SCALE_LOOKAHEAD_MINUTES
+              value: "30"
+            - name: MIN_REPLICAS
+              value: "2"
+            - name: MAX_REPLICAS
+              value: "50"
+          volumeMounts:
+            - name: kubeconfig
+              mountPath: /root/.kube
+      volumes:
+        - name: kubeconfig
+          secret:
+            secretName: kubeconfig-secret
