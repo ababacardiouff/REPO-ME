@@ -1,0 +1,12 @@
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: deny-egress-chaos
+  namespace: molam
+spec:
+  podSelector:
+    matchLabels:
+      app: eats-checkout
+  policyTypes:
+    - Egress
+  egress: []

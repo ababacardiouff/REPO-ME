@@ -1,0 +1,27 @@
+name: Eats Checkout Load Test
+
+on:
+  workflow_dispatch: {}
+
+jobs:
+  load-test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repo
+        uses: actions/checkout@v3
+
+      - name: Setup Node
+        uses: actions/setup-node@v3
+        with:
+          node-version: "18"
+
+      - name: Install k6
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y k6
+
+      - name: Run Load Test
+        env:
+          BASE_URL: "http://staging.molam-eats.com"
+        run: |
+          k6 run tests/load/checkout-load.test.js

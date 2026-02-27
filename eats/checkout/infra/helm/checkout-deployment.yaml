@@ -1,0 +1,26 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: eats-checkout
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: eats-checkout
+  template:
+    metadata:
+      labels:
+        app: eats-checkout
+    spec:
+      containers:
+        - name: eats-checkout
+          image: molam/eats-checkout:latest
+          ports:
+            - containerPort: 3000
+          env:
+            - name: PAYMENT_GATEWAY
+              value: molamPay
+            - name: KAFKA_BROKER
+              value: kafka:9092
+            - name: CHECKOUT_FALLBACK_MODE
+              value: "false"

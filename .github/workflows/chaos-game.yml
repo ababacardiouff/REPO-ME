@@ -1,0 +1,21 @@
+name: Chaos GameDay Runner
+
+on:
+  workflow_dispatch:
+
+jobs:
+  run-chaos-scenario:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Setup kubectl
+        uses: azure/setup-kubectl@v3
+        with:
+          version: "v1.27.1"
+
+      - name: Run Molam Pay outage (simulate)
+        run: |
+          chmod +x chaos/scripts/simulate_service_down.sh
+          ./chaos/scripts/simulate_service_down.sh --namespace molam --deployment molam-pay --duration 300
