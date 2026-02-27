@@ -1,0 +1,41 @@
+name: Eats Checkout Advanced Tests
+
+on:
+  workflow_dispatch: {}
+
+jobs:
+  stress-test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Install k6
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y k6
+
+      - name: Run Stress Test
+        env:
+          BASE_URL: "http://staging.molam-eats.com"
+        run: |
+          k6 run tests/load/checkout-stress.test.js
+
+  chaos-test:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        chaosMode: [normal, molamPayDown, stripeDown]
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Install k6
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y k6
+
+      - name: Run Chaos Test
+        env:
+          BASE_URL: "http://staging.molam-eats.com"
+          CHAOS_MODE: ${{ matrix.chaosMode }}
+        run: |
+          k6 run tests/chaos/checkout-chaos.test.js
