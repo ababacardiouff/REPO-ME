@@ -1,0 +1,49 @@
+name: Eats Product CI & Deploy
+
+on: [push]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:15
+        env:
+          POSTGRES_PASSWORD: password
+          POSTGRES_USER: molam
+          POSTGRES_DB: molam_eats
+        ports:
+          - 5432:5432
+    env:
+      DATABASE_URL: postgresql://molam:password@localhost:5432/molam_eats
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - run: npm ci
+      - run: npm run build
+      - run: npx prisma migrate deploy --schema=prisma/schema.prisma
+      - run: npm test
+
+  build_and_push:
+    needs: test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build and Push
+        uses: docker/build-push-action@v4
+        with:
+          push: true
+          tags: ${{ secrets.DOCKER_REGISTRY }}/eats-product:${{ github.sha }}
+
+  deploy:
+    needs: build_and_push
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup Kube
+        uses: azure/setup-kubectl@v4
+      - name: Helm deploy
+        run: helm upgrade --install eats-product helm/eats-product --namespace molam --set image.repository=${{ secrets.DOCKER_REGISTRY }}/eats-product --set image.tag=${{ github.sha }}

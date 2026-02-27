@@ -1,0 +1,33 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: eats-product
+  labels:
+    app: eats-product
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      app: eats-product
+  template:
+    metadata:
+      labels:
+        app: eats-product
+    spec:
+      containers:
+        - name: eats-product
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          ports:
+            - name: http
+              containerPort: 3000
+          env:
+            - name: DATABASE_URL
+              value: {{ .Values.env.DATABASE_URL | quote }}
+            - name: KAFKA_BROKERS
+              value: {{ .Values.env.KAFKA_BROKERS | quote }}
+            - name: FATIMA_URL
+              value: {{ .Values.env.FATIMA_URL | quote }}
+            - name: FATIMA_KEY
+              value: {{ .Values.env.FATIMA_KEY | quote }}
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
