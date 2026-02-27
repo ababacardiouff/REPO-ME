@@ -1,0 +1,22 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: eats-onboarding
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      app: eats-onboarding
+  template:
+    metadata:
+      labels:
+        app: eats-onboarding
+    spec:
+      containers:
+        - name: eats-onboarding
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          ports:
+            - containerPort: 3000
+          envFrom:
+            - secretRef:
+                name: eats-secrets

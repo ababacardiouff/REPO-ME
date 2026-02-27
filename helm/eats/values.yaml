@@ -1,0 +1,14 @@
+image:
+  repository: registry.molam.com/eats/onboarding
+  tag: "1.0.0"
+replicaCount: 2
+service:
+  type: ClusterIP
+  port: 3000
+env:
+  DATABASE_URL: ""
+  KAFKA_BROKERS: ""
+  FATIMA_URL: ""
+  FATIMA_KEY: ""
+  MOLAM_ID_URL: ""
+  MOLAM_ID_TOKEN: ""
