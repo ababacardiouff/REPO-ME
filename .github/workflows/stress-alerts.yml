@@ -1,0 +1,49 @@
+name: Stress Test Alerts
+
+on:
+  schedule:
+    - cron: "*/15 * * * *"
+  workflow_dispatch:
+
+jobs:
+  check-metrics:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Get Error Rate and Latency
+        run: |
+          ERRORS=$(curl -s "http://prometheus:9090/api/v1/query?query=sum(rate(http_requests_total{app='molam-eats',status=~'5..'}[1m])) / sum(rate(http_requests_total{app='molam-eats'}[1m])) * 100" | jq -r '.data.result[0].value[1] // "0"')
+          LATENCY=$(curl -s "http://prometheus:9090/api/v1/query?query=histogram_quantile(0.95, sum(rate(http_request_duration_seconds_bucket{app='molam-eats'}[5m])) by (le))" | jq -r '.data.result[0].value[1] // "0"')
+          echo "errors=$ERRORS" >> "$GITHUB_ENV"
+          echo "latency=$LATENCY" >> "$GITHUB_ENV"
+          if awk "BEGIN {exit !($ERRORS > 5 || $LATENCY > 1)}"; then
+            echo "should_alert=true" >> "$GITHUB_ENV"
+          else
+            echo "should_alert=false" >> "$GITHUB_ENV"
+          fi
+
+      - name: Send Slack Alert
+        if: env.should_alert == 'true'
+        uses: slackapi/slack-github-action@v1.24.0
+        with:
+          channel-id: "#molam-ops"
+          slack-message: |
+            🚨 *Molam Eats Stress Test Alert*
+            - Error Rate: ${{ env.errors }} %
+            - Latency (p95): ${{ env.latency }} s
+        env:
+          SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
+
+      - name: Send Email Alert
+        if: env.should_alert == 'true'
+        uses: dawidd6/action-send-mail@v3
+        with:
+          server_address: smtp.gmail.com
+          server_port: 465
+          username: ${{ secrets.EMAIL_USER }}
+          password: ${{ secrets.EMAIL_PASS }}
+          subject: "🚨 Molam Eats Stress Test Alert"
+          body: |
+            Error Rate: ${{ env.errors }} %
+            Latency (p95): ${{ env.latency }} s
+          to: ops@molam.com
+          from: Molam Ops Bot

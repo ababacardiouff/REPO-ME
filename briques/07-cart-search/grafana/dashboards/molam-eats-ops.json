@@ -1,0 +1,60 @@
+{
+  "id": null,
+  "uid": "molam-eats-ops",
+  "title": "Molam Eats - Ops Stress Monitoring",
+  "timezone": "browser",
+  "schemaVersion": 27,
+  "version": 1,
+  "refresh": "30s",
+  "panels": [
+    {
+      "type": "stat",
+      "title": "🚨 Error Rate",
+      "targets": [
+        {
+          "expr": "sum(rate(http_requests_total{app=\"molam-eats\",status=~\"5..\"}[1m])) / sum(rate(http_requests_total{app=\"molam-eats\"}[1m])) * 100",
+          "legendFormat": "Error %"
+        }
+      ],
+      "thresholds": {
+        "mode": "absolute",
+        "steps": [
+          { "color": "green", "value": null },
+          { "color": "yellow", "value": 1 },
+          { "color": "red", "value": 5 }
+        ]
+      },
+      "id": 1
+    },
+    {
+      "type": "stat",
+      "title": "⏱ Latency p95",
+      "targets": [
+        {
+          "expr": "histogram_quantile(0.95, sum(rate(http_request_duration_seconds_bucket{app=\"molam-eats\"}[5m])) by (le))",
+          "legendFormat": "p95 latency"
+        }
+      ],
+      "thresholds": {
+        "mode": "absolute",
+        "steps": [
+          { "color": "green", "value": null },
+          { "color": "yellow", "value": 0.5 },
+          { "color": "red", "value": 1 }
+        ]
+      },
+      "id": 2
+    },
+    {
+      "type": "stat",
+      "title": "💥 Virtual Users",
+      "targets": [
+        {
+          "expr": "artillery_virtual_users{app=\"molam-eats\"}",
+          "legendFormat": "VU"
+        }
+      ],
+      "id": 3
+    }
+  ]
+}

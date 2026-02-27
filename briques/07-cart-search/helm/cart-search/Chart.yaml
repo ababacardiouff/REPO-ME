@@ -1,0 +1,5 @@
+apiVersion: v2
+name: cart-search
+description: Helm chart for Molam Eats Cart & Search
+version: 0.1.0
+appVersion: "1.0.0"

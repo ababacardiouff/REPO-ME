@@ -1,0 +1,53 @@
+name: Stress Test Molam Eats
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - staging
+
+jobs:
+  stress-test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run Prisma migrations
+        run: npx prisma migrate deploy
+
+      - name: Seed database
+        run: npx ts-node briques/07-cart-search/backend/prisma/seed.ts
+
+      - name: Install Artillery
+        run: npm install -g artillery
+
+      - name: Run Stress Test
+        run: |
+          artillery run briques/07-cart-search/tests/load/load-test.js --output report.json
+          artillery report --output report.html report.json
+
+      - name: Upload Stress Test Report (HTML)
+        uses: actions/upload-artifact@v4
+        with:
+          name: stress-test-report
+          path: report.html
+
+      - name: Fail build if errors > 1%
+        run: |
+          ERRORS=$(jq '[.intermediate[].codes["5xx"] // 0] | add' report.json)
+          TOTAL=$(jq '[.intermediate[].requestsCompleted // 0] | add' report.json)
+          ERROR_RATE=$((ERRORS * 100 / (TOTAL == 0 ? 1 : TOTAL)))
+          echo "Error rate: $ERROR_RATE%"
+          if [ "$ERROR_RATE" -gt 1 ]; then
+            echo "❌ Stress test failed (Error rate > 1%)"
+            exit 1
+          fi

@@ -1,0 +1,77 @@
+{
+  "id": null,
+  "uid": "molam-eats-stress",
+  "title": "Molam Eats - Stress Test Dashboard",
+  "timezone": "browser",
+  "panels": [
+    {
+      "type": "graph",
+      "title": "Requests per Second",
+      "targets": [
+        {
+          "expr": "rate(http_requests_total{app=\"molam-eats\"}[1m])",
+          "legendFormat": "RPS"
+        }
+      ],
+      "id": 1
+    },
+    {
+      "type": "graph",
+      "title": "Latency (p95)",
+      "targets": [
+        {
+          "expr": "histogram_quantile(0.95, sum(rate(http_request_duration_seconds_bucket{app=\"molam-eats\"}[5m])) by (le))",
+          "legendFormat": "p95"
+        }
+      ],
+      "id": 2
+    },
+    {
+      "type": "graph",
+      "title": "Error Rate (5xx)",
+      "targets": [
+        {
+          "expr": "sum(rate(http_requests_total{app=\"molam-eats\",status=~\"5..\"}[1m])) / sum(rate(http_requests_total{app=\"molam-eats\"}[1m]))",
+          "legendFormat": "Error %"
+        }
+      ],
+      "id": 3
+    },
+    {
+      "type": "graph",
+      "title": "Concurrent Virtual Users (Artillery)",
+      "targets": [
+        {
+          "expr": "artillery_virtual_users{app=\"molam-eats\"}",
+          "legendFormat": "VU"
+        }
+      ],
+      "id": 4
+    },
+    {
+      "type": "graph",
+      "title": "CPU Usage (Molam Eats Pod)",
+      "targets": [
+        {
+          "expr": "rate(container_cpu_usage_seconds_total{pod=~\"molam-eats.*\"}[2m])",
+          "legendFormat": "CPU"
+        }
+      ],
+      "id": 5
+    },
+    {
+      "type": "graph",
+      "title": "Memory Usage (Molam Eats Pod)",
+      "targets": [
+        {
+          "expr": "container_memory_usage_bytes{pod=~\"molam-eats.*\"}",
+          "legendFormat": "Memory"
+        }
+      ],
+      "id": 6
+    }
+  ],
+  "schemaVersion": 27,
+  "version": 1,
+  "refresh": "30s"
+}

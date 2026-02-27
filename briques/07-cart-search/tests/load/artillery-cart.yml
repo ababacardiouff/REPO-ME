@@ -1,0 +1,13 @@
+config:
+  target: "http://localhost:3000"
+  phases:
+    - duration: 60
+      arrivalRate: 50
+scenarios:
+  - flow:
+      - post:
+          url: "/api/cart/add"
+          json:
+            userId: "user-1"
+            productId: "prod-1"
+            qty: 2

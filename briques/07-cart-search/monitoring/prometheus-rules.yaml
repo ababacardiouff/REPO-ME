@@ -1,0 +1,24 @@
+groups:
+  - name: cart-search.rules
+    rules:
+      - alert: CartServiceDown
+        expr: up{job="cart-search"} == 0
+        for: 2m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Cart service is down"
+      - alert: SearchLatencyHigh
+        expr: histogram_quantile(0.95, rate(http_request_duration_seconds_bucket{job="cart-search"}[5m])) > 0.8
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Search API latency > 800ms"
+      - alert: CartErrorsHigh
+        expr: increase(http_requests_total{job="cart-search",status=~"5.."}[1m]) > 20
+        for: 1m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Trop d'erreurs 5xx sur Cart API pendant test de charge"
