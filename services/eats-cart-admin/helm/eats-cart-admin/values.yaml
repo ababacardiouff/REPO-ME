@@ -1,0 +1,19 @@
+image:
+  repository: registry.molam/eats-cart-admin
+  tag: "1.0.0"
+
+replicaCount: 2
+
+kafka:
+  brokers: kafka:9092
+
+molamId:
+  jwks: https://molam-id/.well-known/jwks.json
+
+resources:
+  limits:
+    cpu: 500m
+    memory: 512Mi
+  requests:
+    cpu: 100m
+    memory: 128Mi

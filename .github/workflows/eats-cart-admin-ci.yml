@@ -1,0 +1,25 @@
+name: Eats Cart Admin CI
+
+on:
+  push:
+    paths:
+      - "services/eats-cart-admin/**"
+
+jobs:
+  test-and-build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Setup Node
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18
+      - run: npm ci
+        working-directory: services/eats-cart-admin
+      - run: npm test -- --runInBand
+        working-directory: services/eats-cart-admin
+      - name: Build & Push Docker
+        uses: docker/build-push-action@v4
+        with:
+          push: true
+          tags: ${{ secrets.DOCKER_REGISTRY }}/eats-cart-admin:${{ github.sha }}
