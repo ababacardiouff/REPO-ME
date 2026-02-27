@@ -1,0 +1,12 @@
+{
+  "keys": [
+    {
+      "kty": "RSA",
+      "kid": "molam-staging-key-1",
+      "use": "sig",
+      "alg": "RS256",
+      "n": "sXch...replace_with_real_modulus_base64url...",
+      "e": "AQAB"
+    }
+  ]
+}
