@@ -1,0 +1,12 @@
+image:
+  repository: registry.molam.com/eats/plans
+  tag: "1.0.0"
+replicaCount: 2
+service:
+  type: ClusterIP
+  port: 3001
+env:
+  DATABASE_URL: ""
+  MOLAM_ID_JWKS: ""
+  MOLAM_PAY_SECRET: ""
+resources: {}
