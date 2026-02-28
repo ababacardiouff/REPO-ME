@@ -1,0 +1,44 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: molam-invoices
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      app: molam-invoices
+  template:
+    metadata:
+      labels:
+        app: molam-invoices
+    spec:
+      containers:
+        - name: invoices
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          env:
+            - name: DATABASE_URL
+              valueFrom:
+                secretKeyRef:
+                  name: invoices-secrets
+                  key: DATABASE_URL
+            - name: S3_ENDPOINT
+              valueFrom:
+                secretKeyRef:
+                  name: invoices-secrets
+                  key: S3_ENDPOINT
+            - name: S3_ACCESS_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: invoices-secrets
+                  key: S3_ACCESS_KEY
+            - name: S3_SECRET_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: invoices-secrets
+                  key: S3_SECRET_KEY
+            - name: INVOICES_BUCKET
+              value: "{{ .Values.env.INVOICES_BUCKET }}"
+            - name: MAILER_SERVICE_URL
+              value: "{{ .Values.env.MAILER_SERVICE_URL }}"
+          ports:
+            - containerPort: 3000

@@ -1,0 +1,13 @@
+{
+  "invoice": {
+    "title": "Facture",
+    "issuer": "Émetteur",
+    "recipient": "Destinataire",
+    "date": "Date",
+    "email": "E-mail",
+    "items_header": "Articles",
+    "subtotal": "Sous-total",
+    "tax": "Taxes",
+    "total": "Total"
+  }
+}
