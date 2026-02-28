@@ -11,7 +11,8 @@ spec:
       containers:
         - name: eats-seeder
           image: registry.molam.com/molam-eats-seed:latest
-          command: ["node", "scripts/mass_seed.js"]
+          command: ["node"]
+          args: ["scripts/mass_seed.js"]
           env:
             - name: DATABASE_URL
               valueFrom:
