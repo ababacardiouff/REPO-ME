@@ -39,6 +39,24 @@ describe("CommissionService", () => {
 
     await expect(service.getVendorBalance("v1")).resolves.toBe(120);
     await service.markAsPaid("v1");
-    expect(store.markVendorCommissionsPaid).toHaveBeenCalledWith("v1");
+    expect(store.markVendorCommissionsPaid).toHaveBeenCalledWith("v1", undefined);
+  });
+
+  it("passes payout cutoff date to balance and paid updates", async () => {
+    const payoutCutoff = new Date("2025-01-01T00:00:00.000Z");
+    const store: CommissionStore = {
+      insertCommission: jest.fn(),
+      getUnpaidVendorEarnings: jest.fn().mockResolvedValue(33),
+      markVendorCommissionsPaid: jest.fn().mockResolvedValue(undefined),
+      listVendorsWithUnpaidBalances: jest.fn()
+    };
+
+    const service = new CommissionService(store);
+
+    await service.getVendorBalance("v2", payoutCutoff);
+    await service.markAsPaid("v2", payoutCutoff);
+
+    expect(store.getUnpaidVendorEarnings).toHaveBeenCalledWith("v2", payoutCutoff);
+    expect(store.markVendorCommissionsPaid).toHaveBeenCalledWith("v2", payoutCutoff);
   });
 });

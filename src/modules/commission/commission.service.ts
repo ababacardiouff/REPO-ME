@@ -14,8 +14,8 @@ export type CommissionRecord = {
 
 export interface CommissionStore {
   insertCommission(orderId: string, vendorId: string, commissionAmount: number, vendorEarning: number): Promise<CommissionRecord>;
-  getUnpaidVendorEarnings(vendorId: string): Promise<number>;
-  markVendorCommissionsPaid(vendorId: string): Promise<void>;
+  getUnpaidVendorEarnings(vendorId: string, beforeOrAt?: Date): Promise<number>;
+  markVendorCommissionsPaid(vendorId: string, beforeOrAt?: Date): Promise<void>;
   listVendorsWithUnpaidBalances(): Promise<string[]>;
 }
 
@@ -52,19 +52,28 @@ export class PgCommissionStore implements CommissionStore {
     };
   }
 
-  async getUnpaidVendorEarnings(vendorId: string): Promise<number> {
+  async getUnpaidVendorEarnings(vendorId: string, beforeOrAt?: Date): Promise<number> {
     const row = await db.one<{ total: string }>(
       `SELECT COALESCE(SUM(vendor_earning), 0)::text AS total
        FROM commissions
-       WHERE vendor_id = $1 AND paid_out = false`,
-      [vendorId]
+       WHERE vendor_id = $1
+         AND paid_out = false
+         AND ($2::timestamptz IS NULL OR created_at <= $2)`,
+      [vendorId, beforeOrAt ?? null]
     );
 
     return Number(row.total);
   }
 
-  async markVendorCommissionsPaid(vendorId: string): Promise<void> {
-    await db.none(`UPDATE commissions SET paid_out = true WHERE vendor_id = $1 AND paid_out = false`, [vendorId]);
+  async markVendorCommissionsPaid(vendorId: string, beforeOrAt?: Date): Promise<void> {
+    await db.none(
+      `UPDATE commissions
+       SET paid_out = true
+       WHERE vendor_id = $1
+         AND paid_out = false
+         AND ($2::timestamptz IS NULL OR created_at <= $2)`,
+      [vendorId, beforeOrAt ?? null]
+    );
   }
 
   async listVendorsWithUnpaidBalances(): Promise<string[]> {
@@ -100,12 +109,12 @@ export class CommissionService {
     return this.store.insertCommission(orderId, vendorId, commissionAmount, vendorEarning);
   }
 
-  getVendorBalance(vendorId: string) {
-    return this.store.getUnpaidVendorEarnings(vendorId);
+  getVendorBalance(vendorId: string, beforeOrAt?: Date) {
+    return this.store.getUnpaidVendorEarnings(vendorId, beforeOrAt);
   }
 
-  markAsPaid(vendorId: string) {
-    return this.store.markVendorCommissionsPaid(vendorId);
+  markAsPaid(vendorId: string, beforeOrAt?: Date) {
+    return this.store.markVendorCommissionsPaid(vendorId, beforeOrAt);
   }
 
   listVendorsWithUnpaidBalances() {
