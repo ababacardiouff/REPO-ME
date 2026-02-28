@@ -10,7 +10,8 @@
     "test": "jest --runInBand",
     "seed": "ts-node prisma/seed.ts",
     "migrate": "prisma migrate deploy --schema=prisma/schema.prisma",
-    "seed:advanced": "ts-node prisma/seed-advanced.ts"
+    "seed:advanced": "ts-node prisma/seed-advanced.ts",
+    "seed:schedules": "ts-node scripts/seedSchedules.ts"
   },
   "dependencies": {
     "@prisma/client": "^5.7.0",

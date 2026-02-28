@@ -1,0 +1,18 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: eats-schedule-validator
+spec:
+  schedule: "*/5 * * * *"
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          containers:
+            - name: validator
+              image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+              command: ["node", "dist/src/cron/scheduleValidator.js"]
+              envFrom:
+                - secretRef:
+                    name: eats-catalog-secret
+          restartPolicy: OnFailure
