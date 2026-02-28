@@ -16,6 +16,7 @@ import invoicesRouter from "./api/invoices";
 import checkoutWebhookRouter from "./api/webhooks/checkout";
 import catalogRoutes from "./api/catalog";
 import uploadRoutes from "./api/uploads";
+import schedulesRouter from "./api/schedules";
 import { metricsMiddleware } from "./middlewares/metricsMiddleware";
 import db from "./db";
 
@@ -38,6 +39,7 @@ app.use("/api/invoices", invoicesRouter);
 app.use("/api/webhooks/checkout", checkoutWebhookRouter);
 app.use("/api/catalog", catalogRoutes);
 app.use("/api", uploadRoutes);
+app.use("/api/schedules", schedulesRouter);
 app.use("/", catalogRoutes);
 
 app.get("/healthz", (_, res) => res.json({ status: "ok" }));
