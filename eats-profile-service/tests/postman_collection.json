@@ -1,0 +1,12 @@
+{
+  "info": { "name": "Eats Profile API" },
+  "item": [
+    {
+      "name": "Get Profile",
+      "request": {
+        "method": "GET",
+        "url": "http://localhost:3000/profiles/test-user"
+      }
+    }
+  ]
+}

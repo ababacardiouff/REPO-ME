@@ -1,0 +1,19 @@
+image:
+  repository: eats-profile
+  tag: latest
+  pullPolicy: IfNotPresent
+
+replicaCount: 2
+
+service:
+  type: ClusterIP
+  port: 3000
+
+ingress:
+  enabled: false
+  className: nginx
+  hosts:
+    - host: eats-profile.local
+      paths:
+        - path: /
+          pathType: Prefix
