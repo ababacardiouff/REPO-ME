@@ -1,0 +1,21 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: eats-seed-job
+  namespace: molam-eats
+spec:
+  backoffLimit: 2
+  template:
+    spec:
+      restartPolicy: Never
+      containers:
+        - name: eats-seeder
+          image: registry.molam.com/molam-eats-seed:latest
+          env:
+            - name: DATABASE_URL
+              valueFrom:
+                secretKeyRef:
+                  name: eats-db-secret
+                  key: DATABASE_URL
+            - name: SEED_COUNT
+              value: "100000"

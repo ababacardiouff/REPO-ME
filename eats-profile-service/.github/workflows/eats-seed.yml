@@ -1,0 +1,26 @@
+name: Eats DB Seeding
+
+on:
+  workflow_dispatch:
+    inputs:
+      seed_count:
+        description: Number of profiles to seed
+        default: "50000"
+        required: true
+
+jobs:
+  seed:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repo
+        uses: actions/checkout@v3
+      - name: Build Seeder Image
+        run: docker build -t registry.molam.com/molam-eats-seed:latest .
+      - name: Push to Registry
+        run: docker push registry.molam.com/molam-eats-seed:latest
+      - name: Deploy Seeder Job
+        uses: azure/k8s-deploy@v4
+        with:
+          manifests: k8s/job-eats-seed.yaml
+          images: registry.molam.com/molam-eats-seed:latest
+          namespace: molam-eats

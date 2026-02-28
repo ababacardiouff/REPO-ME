@@ -1,0 +1,19 @@
+name: Deploy Eats CronJob Seeder
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  deploy-cronjob:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repo
+        uses: actions/checkout@v3
+      - name: Deploy CronJob
+        uses: azure/k8s-deploy@v4
+        with:
+          manifests: k8s/cronjob-eats-seed.yaml
+          images: registry.molam.com/molam-eats-seed:latest
+          namespace: molam-eats
