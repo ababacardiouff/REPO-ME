@@ -7,7 +7,7 @@ export class CreateVendorProfilesEats20250201 implements MigrationInterface {
     await queryRunner.query(`
       CREATE TABLE IF NOT EXISTS vendor_profiles_eats (
         id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-        vendor_id UUID NOT NULL REFERENCES vendors(id) ON DELETE CASCADE,
+        vendor_id UUID NOT NULL REFERENCES eats_vendors(id) ON DELETE CASCADE,
         molam_user_id UUID NOT NULL,
         role VARCHAR(100) NOT NULL,
         active BOOLEAN DEFAULT true,
