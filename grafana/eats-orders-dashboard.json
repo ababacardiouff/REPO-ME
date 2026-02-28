@@ -1,0 +1,26 @@
+{
+  "title": "Molam Eats Orders, Promos & FATIMA",
+  "panels": [
+    {
+      "title": "Top Promo Codes by ROI",
+      "type": "graph",
+      "targets": [
+        { "expr": "avg_over_time(eats_promo_usage_total[7d]) * on(promo_code) group_left() eats_promo_Fatima_score" }
+      ]
+    },
+    {
+      "title": "Abandoned Carts Restoration Probability",
+      "type": "table",
+      "targets": [
+        { "expr": "eats_abandoned_carts_probability" }
+      ]
+    },
+    {
+      "title": "Checkout Conversion (FATIMA Adjusted)",
+      "type": "gauge",
+      "targets": [
+        { "expr": "eats_checkout_conversion_rate" }
+      ]
+    }
+  ]
+}

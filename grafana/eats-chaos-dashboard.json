@@ -1,0 +1,29 @@
+{
+  "title": "Molam Eats - Chaos & Resilience Dashboard",
+  "schemaVersion": 27,
+  "version": 1,
+  "panels": [
+    {
+      "title": "DB p95 latency (checkout API)",
+      "type": "graph",
+      "targets": [
+        { "expr": "histogram_quantile(0.95, sum(rate(pg_statement_duration_seconds_bucket{job='shop-api', route='/api/checkout/order'}[5m])) by (le))" }
+      ]
+    },
+    {
+      "title": "Kafka consumer lag",
+      "type": "table",
+      "targets": [
+        { "expr": "kafka_consumergroup_lag{job='kafka'}" }
+      ]
+    },
+    {
+      "title": "A/B Notifications - conversions by variant (24h)",
+      "type": "bar",
+      "targets": [
+        { "expr": "sum(increase(eats_cart_restored_total[24h])) by (variant)" },
+        { "expr": "sum(increase(eats_cart_notifications_sent_total[24h])) by (variant)" }
+      ]
+    }
+  ]
+}

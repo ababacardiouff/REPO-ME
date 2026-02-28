@@ -1,0 +1,32 @@
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: eats-chaos-rules
+  namespace: monitoring
+spec:
+  groups:
+    - name: eats-chaos-critical
+      rules:
+        - alert: PostgresHighP95
+          expr: histogram_quantile(0.95, sum(rate(pg_statement_duration_seconds_bucket{job="shop-api"}[5m])) by (le)) > 1
+          for: 5m
+          labels:
+            severity: critical
+          annotations:
+            summary: "Postgres p95 latency > 1s (shop-api)"
+        - alert: KafkaHighConsumerLag
+          expr: kafka_consumergroup_lag{job="kafka"} > 5000
+          for: 3m
+          labels:
+            severity: critical
+          annotations:
+            summary: "Kafka consumer lag > 5000"
+    - name: eats-chaos-warning
+      rules:
+        - alert: CheckoutApiErrorRateHigh
+          expr: rate(http_requests_total{job="shop-api", route="/api/checkout/order", status=~"5.."}[5m]) > 0.02
+          for: 5m
+          labels:
+            severity: warning
+          annotations:
+            summary: "Checkout API 5xx rate > 2%"

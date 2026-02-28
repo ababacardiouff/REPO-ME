@@ -1,0 +1,91 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: eats-order-metrics
+spec:
+  schedule: "0 * * * *"
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          containers:
+            - name: order-metrics-job
+              image: molam/eats-worker:latest
+              command: ["node", "jobs/collectMetrics.js"]
+              env:
+                - name: DATABASE_URL
+                  valueFrom:
+                    secretKeyRef:
+                      name: eats-secrets
+                      key: DATABASE_URL
+                - name: PROM_PUSHGATEWAY
+                  value: "http://prometheus-pushgateway:9091"
+          restartPolicy: OnFailure
+---
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: eats-abandoned-cleanup
+spec:
+  schedule: "0 3 * * *"
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          containers:
+            - name: abandoned-cleaner
+              image: molam/eats-worker:latest
+              command: ["node", "jobs/cleanupAbandoned.js"]
+              env:
+                - name: DATABASE_URL
+                  valueFrom:
+                    secretKeyRef:
+                      name: eats-secrets
+                      key: DATABASE_URL
+          restartPolicy: OnFailure
+---
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: eats-fatima-scoring
+spec:
+  schedule: "*/30 * * * *"
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          containers:
+            - name: fatima-scoring
+              image: molam/eats-worker:latest
+              command: ["node", "jobs/FatimaScoring.js"]
+              env:
+                - name: DATABASE_URL
+                  valueFrom:
+                    secretKeyRef:
+                      name: eats-secrets
+                      key: DATABASE_URL
+                - name: FATIMA_ENGINE_URL
+                  value: "http://fatima-engine:5000"
+          restartPolicy: OnFailure
+---
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: eats-cart-notifier
+spec:
+  schedule: "0 * * * *"
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          containers:
+            - name: cart-notifier
+              image: molam/eats-worker:latest
+              command: ["node", "jobs/cartNotifier.js"]
+              env:
+                - name: DATABASE_URL
+                  valueFrom:
+                    secretKeyRef:
+                      name: eats-secrets
+                      key: DATABASE_URL
+          restartPolicy: OnFailure

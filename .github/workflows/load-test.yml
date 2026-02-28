@@ -1,0 +1,17 @@
+name: Load Tests
+
+on:
+  workflow_dispatch:
+
+jobs:
+  k6-load-test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install k6
+        run: |
+          sudo gpg -k
+      - name: Run Load Test API
+        run: echo "Run locally with k6 run tests/load/abConfigLoad.test.js"
+      - name: Run Load Test Worker
+        run: echo "Run locally with k6 run tests/load/workerLoad.test.js"

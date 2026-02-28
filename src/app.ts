@@ -3,6 +3,7 @@ import express from "express";
 import recommendationsRouter from "./api/recommendations";
 import cartRouter from "./api/cart";
 import checkoutRouter from "./api/checkout";
+import ordersRouter from "./api/orders.routes";
 import productsRouter from "./api/products";
 import variantsRouter from "./api/variants";
 import categoriesRouter from "./api/eats/categories";
@@ -10,6 +11,7 @@ import itemsRouter from "./api/eats/items";
 import metricsClient, { outboxLagGauge } from "./infra/metrics";
 import moderationRouter from "./api/moderation";
 import adminModerationRouter from "./api/adminModeration";
+import opsABTestRouter from "./api/opsABTest";
 import { metricsMiddleware } from "./middlewares/metricsMiddleware";
 import db from "./db";
 
@@ -24,8 +26,10 @@ app.use("/api/eats/variants", variantsRouter);
 app.use("/api/eats/recommendations", recommendationsRouter);
 app.use("/api/eats/cart", cartRouter);
 app.use("/api/eats/checkout", checkoutRouter);
+app.use("/api/orders", ordersRouter);
 app.use("/api/moderation", moderationRouter);
 app.use("/api/admin/moderation", adminModerationRouter);
+app.use("/api/ops", opsABTestRouter);
 
 app.get("/healthz", (_, res) => res.json({ status: "ok" }));
 
