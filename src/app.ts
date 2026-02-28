@@ -18,6 +18,7 @@ import catalogRoutes from "./api/catalog";
 import uploadRoutes from "./api/uploads";
 import schedulesRouter from "./api/schedules";
 import holidaysRouter from "./api/holidays";
+import surgeRouter from "./api/surge";
 import { metricsMiddleware } from "./middlewares/metricsMiddleware";
 import db from "./db";
 
@@ -42,6 +43,7 @@ app.use("/api/catalog", catalogRoutes);
 app.use("/api", uploadRoutes);
 app.use("/api/schedules", schedulesRouter);
 app.use("/api/holidays", holidaysRouter);
+app.use("/api/surge", surgeRouter);
 app.use("/", catalogRoutes);
 
 app.get("/healthz", (_, res) => res.json({ status: "ok" }));

@@ -29,3 +29,18 @@ export async function callFatimaModeration(payload: { text?: unknown; images?: u
     return { blocked: false, score: 50, reviewRequired: true };
   }
 }
+
+export async function callFatimaForSurgeDecision(payload: unknown) {
+  const fatimaUrl = process.env.FATIMA_URL || "http://Fatima.internal";
+  const fatimaKey = process.env.FATIMA_KEY || "";
+
+  try {
+    const res = await axios.post(`${fatimaUrl}/surge/evaluate`, payload, {
+      headers: { "x-api-key": fatimaKey, "content-type": "application/json" },
+      timeout: 3000
+    });
+    return res.data as { veto?: boolean; adjustments?: unknown[]; note?: string };
+  } catch {
+    return { veto: false, note: "FATIMA_unavailable" };
+  }
+}

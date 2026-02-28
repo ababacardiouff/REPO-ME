@@ -1,0 +1,19 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: eats-surge-monitor
+spec:
+  schedule: "*/1 * * * *"
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          serviceAccountName: eats-surge-sa
+          containers:
+            - name: monitor
+              image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+              command: ["node", "dist/workers/surgeMonitor.js"]
+              envFrom:
+                - secretRef:
+                    name: eats-surge-secret
+          restartPolicy: OnFailure
