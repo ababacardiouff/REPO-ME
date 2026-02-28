@@ -1,0 +1,16 @@
+name: Chaos Tests
+
+on:
+  workflow_dispatch:
+
+jobs:
+  chaos-tests:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Run DB Latency Chaos Test
+        run: echo "Run locally with k6 run tests/chaos/dbLatency.test.js"
+      - name: Run Kafka Chaos Test
+        run: echo "Run locally with k6 run tests/chaos/kafkaChaos.test.js"
+      - name: Kill Pods During Test
+        run: echo "Run scripts/chaos/killPods.sh in cluster context"

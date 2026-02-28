@@ -1,0 +1,20 @@
+{
+  "title": "Molam Eats - Cart Notification A/B Testing",
+  "panels": [
+    {
+      "title": "Notifications Sent per Variant",
+      "type": "bar",
+      "targets": [{ "expr": "sum by(variant)(eats_cart_notifications_sent_total)" }]
+    },
+    {
+      "title": "Restored Carts per Variant",
+      "type": "bar",
+      "targets": [{ "expr": "sum by(variant)(eats_cart_restored_total)" }]
+    },
+    {
+      "title": "Conversion Rate per Variant",
+      "type": "gauge",
+      "targets": [{ "expr": "eats_cart_restored_total / eats_cart_notifications_sent_total" }]
+    }
+  ]
+}

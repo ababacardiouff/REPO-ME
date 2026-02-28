@@ -185,3 +185,67 @@ model EatsOutbox {
 
   @@map("eats_outbox")
 }
+
+model EatsOrders {
+  id             String           @id @default(uuid())
+  userId         String           @map("user_id")
+  totalAmount    Decimal          @map("total_amount")
+  discountAmount Decimal          @default(0) @map("discount_amount")
+  finalAmount    Decimal          @map("final_amount")
+  promoCode      String?          @map("promo_code")
+  status         String           @default("PENDING")
+  abandonedFrom  String?          @map("abandoned_from")
+  createdAt      DateTime         @default(now()) @map("created_at")
+  updatedAt      DateTime         @updatedAt @map("updated_at")
+  items          EatsOrderItems[]
+
+  @@map("eats_orders")
+}
+
+model EatsOrderItems {
+  id        String     @id @default(uuid())
+  orderId   String     @map("order_id")
+  productId String     @map("product_id")
+  quantity  Int
+  unitPrice Decimal    @map("unit_price")
+  subtotal  Decimal
+  order     EatsOrders @relation(fields: [orderId], references: [id], onDelete: Cascade)
+
+  @@map("eats_order_items")
+}
+
+model EatsPromoCodes {
+  id          String   @id @default(uuid())
+  code        String   @unique
+  description String
+  discount    Int
+  maxUsage    Int      @map("max_usage")
+  usedCount   Int      @default(0) @map("used_count")
+  validFrom   DateTime @map("valid_from")
+  validTo     DateTime @map("valid_to")
+  active      Boolean  @default(true)
+  fatimaScore Float    @default(0) @map("Fatima_score")
+
+  @@map("eats_promo_codes")
+}
+
+model EatsAbandonedCarts {
+  id          String   @id @default(uuid())
+  userId      String   @map("user_id")
+  itemsJson   Json     @map("items_json")
+  restored    Boolean  @default(false)
+  probability Float    @default(0)
+  notified    Boolean  @default(false)
+  variant     String?
+  createdAt   DateTime @default(now()) @map("created_at")
+
+  @@map("eats_abandoned_carts")
+}
+
+model EatsABConfig {
+  id         String   @id @default(uuid())
+  forcedMode String   @default("random")
+  updatedAt  DateTime @updatedAt
+
+  @@map("eats_ab_config")
+}
