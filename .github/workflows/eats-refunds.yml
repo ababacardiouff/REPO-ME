@@ -1,0 +1,40 @@
+name: Eats Refunds CI/CD
+
+on:
+  push:
+    paths:
+      - "apps/eats-refunds/**"
+      - ".github/workflows/eats-refunds.yml"
+
+jobs:
+  build-test-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Run tests
+        run: npx jest --runInBand apps/eats-refunds/tests/refund.test.ts
+
+      - name: Build Docker image
+        run: |
+          docker build -t molam/eats-refunds:${{ github.sha }} apps/eats-refunds
+
+      - name: Push Docker image
+        run: |
+          echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u ${{ secrets.DOCKER_USER }} --password-stdin
+          docker push molam/eats-refunds:${{ github.sha }}
+
+      - name: Deploy with Helm
+        run: |
+          helm upgrade --install eats-refunds helm/eats-refunds \
+            --set image.tag=${{ github.sha }} \
+            --namespace molam-eats

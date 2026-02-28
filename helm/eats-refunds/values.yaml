@@ -1,0 +1,31 @@
+replicaCount: 2
+
+image:
+  repository: molam/eats-refunds
+  tag: "1.0.0"
+  pullPolicy: IfNotPresent
+
+service:
+  type: ClusterIP
+  port: 8080
+
+env:
+  DATABASE_URL: "postgresql://molam:password@postgres:5432/eats"
+  MOLAM_PAY_URL: "https://pay.molam/api"
+  MOLAM_PAY_KEY: "secure-key"
+  SMTP_USER: "noreply@molam.com"
+  SMTP_PASS: "secret"
+
+resources:
+  limits:
+    cpu: "500m"
+    memory: "512Mi"
+  requests:
+    cpu: "250m"
+    memory: "256Mi"
+
+autoscaling:
+  enabled: true
+  minReplicas: 2
+  maxReplicas: 5
+  targetCPUUtilizationPercentage: 70

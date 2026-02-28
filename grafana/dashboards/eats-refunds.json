@@ -1,0 +1,89 @@
+{
+  "id": null,
+  "title": "Molam Eats - Refunds Dashboard",
+  "timezone": "browser",
+  "schemaVersion": 36,
+  "version": 1,
+  "refresh": "10s",
+  "panels": [
+    {
+      "type": "stat",
+      "title": "Total Refund Requests",
+      "targets": [
+        {
+          "expr": "sum(refund_requests_total)"
+        }
+      ],
+      "gridPos": { "x": 0, "y": 0, "w": 6, "h": 4 }
+    },
+    {
+      "type": "stat",
+      "title": "Refund Failures",
+      "targets": [
+        {
+          "expr": "sum(refund_failures_total)"
+        }
+      ],
+      "gridPos": { "x": 6, "y": 0, "w": 6, "h": 4 }
+    },
+    {
+      "type": "gauge",
+      "title": "Refund Success Rate",
+      "targets": [
+        {
+          "expr": "1 - (sum(refund_failures_total) / sum(refund_requests_total))"
+        }
+      ],
+      "gridPos": { "x": 12, "y": 0, "w": 6, "h": 4 },
+      "options": {
+        "reduceOptions": { "calcs": ["lastNotNull"] },
+        "orientation": "horizontal",
+        "min": 0,
+        "max": 1,
+        "thresholds": {
+          "mode": "percentage",
+          "steps": [
+            { "color": "red", "value": 0 },
+            { "color": "yellow", "value": 0.8 },
+            { "color": "green", "value": 0.95 }
+          ]
+        }
+      }
+    },
+    {
+      "type": "graph",
+      "title": "Refund Processing Duration (p95)",
+      "targets": [
+        {
+          "expr": "histogram_quantile(0.95, sum(rate(refund_duration_seconds_bucket[5m])) by (le))",
+          "legendFormat": "p95 duration"
+        }
+      ],
+      "gridPos": { "x": 0, "y": 4, "w": 12, "h": 6 }
+    },
+    {
+      "type": "graph",
+      "title": "Refund Requests per Minute",
+      "targets": [
+        {
+          "expr": "rate(refund_requests_total[1m])",
+          "legendFormat": "requests"
+        }
+      ],
+      "gridPos": { "x": 12, "y": 4, "w": 12, "h": 6 }
+    },
+    {
+      "type": "table",
+      "title": "Refund Failure Trends",
+      "targets": [
+        {
+          "expr": "rate(refund_failures_total[5m])"
+        }
+      ],
+      "gridPos": { "x": 0, "y": 10, "w": 24, "h": 6 },
+      "options": {
+        "showHeader": true
+      }
+    }
+  ]
+}

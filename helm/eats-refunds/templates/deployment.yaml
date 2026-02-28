@@ -1,0 +1,43 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: eats-refunds
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      app: eats-refunds
+  template:
+    metadata:
+      labels:
+        app: eats-refunds
+    spec:
+      containers:
+        - name: eats-refunds
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          ports:
+            - name: http
+              containerPort: 8080
+          env:
+            - name: DATABASE_URL
+              valueFrom:
+                secretKeyRef:
+                  name: eats-refunds-secrets
+                  key: DATABASE_URL
+            - name: MOLAM_PAY_URL
+              value: "{{ .Values.env.MOLAM_PAY_URL }}"
+            - name: MOLAM_PAY_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: eats-refunds-secrets
+                  key: MOLAM_PAY_KEY
+            - name: SMTP_USER
+              value: "{{ .Values.env.SMTP_USER }}"
+            - name: SMTP_PASS
+              valueFrom:
+                secretKeyRef:
+                  name: eats-refunds-secrets
+                  key: SMTP_PASS
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}

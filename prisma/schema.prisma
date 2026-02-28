@@ -249,3 +249,43 @@ model EatsABConfig {
 
   @@map("eats_ab_config")
 }
+
+model Refund {
+  id        String   @id @default(uuid())
+  orderId   String
+  userId    String
+  molamId   String
+  amount    Float
+  currency  String
+  reason    String
+  language  String   @default("fr")
+  status    String   @default("PENDING")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  order     Order    @relation(fields: [orderId], references: [id])
+
+  @@map("eats_refunds")
+}
+
+model Order {
+  id        String   @id @default(uuid())
+  userId    String
+  total     Float
+  currency  String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  refunds   Refund[]
+
+  @@map("eats_orders_refund")
+}
+
+model Event {
+  id        String   @id @default(uuid())
+  type      String
+  payload   String
+  createdAt DateTime @default(now())
+
+  @@map("eats_refund_events")
+}
