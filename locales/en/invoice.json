@@ -1,0 +1,13 @@
+{
+  "invoice": {
+    "title": "Invoice",
+    "issuer": "Issuer",
+    "recipient": "Recipient",
+    "date": "Date",
+    "email": "Email",
+    "items_header": "Items",
+    "subtotal": "Subtotal",
+    "tax": "Tax",
+    "total": "Total"
+  }
+}
