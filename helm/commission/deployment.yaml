@@ -1,0 +1,26 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: commission-service
+  labels:
+    app: commission
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: commission
+  template:
+    metadata:
+      labels:
+        app: commission
+    spec:
+      containers:
+        - name: commission
+          image: molam-eats/commission:latest
+          ports:
+            - containerPort: 3000
+          envFrom:
+            - configMapRef:
+                name: commission-config
+            - secretRef:
+                name: commission-secrets

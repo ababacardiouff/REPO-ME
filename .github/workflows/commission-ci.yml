@@ -1,0 +1,26 @@
+name: Commission Service CI
+
+on:
+  push:
+    paths:
+      - "src/modules/commission/**"
+      - "src/api/commissions.ts"
+      - "migrations/019_create_commissions.sql"
+      - "helm/commission/**"
+      - "tests/commission.unit.test.ts"
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 18
+      - name: Install deps
+        run: npm ci
+      - name: Run commission unit tests
+        run: npm test -- tests/commission.unit.test.ts
+      - name: Build
+        run: npm run build
