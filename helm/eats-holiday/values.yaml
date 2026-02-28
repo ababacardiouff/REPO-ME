@@ -1,0 +1,8 @@
+image:
+  repository: ghcr.io/molam/eats-holiday
+  tag: "0.1.0"
+
+env:
+  DATABASE_URL: "postgres://user:pass@postgres:5432/eats"
+  KAFKA_BROKERS: "kafka:9092"
+  MOLAM_ID_JWT_SECRET: "supersecret"

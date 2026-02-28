@@ -1,0 +1,18 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: eats-holiday-notifier
+spec:
+  schedule: "0 2 * * *"
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          containers:
+            - name: holiday-notifier
+              image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+              command: ["node", "dist/cron/holidayNotifier.js"]
+              envFrom:
+                - secretRef:
+                    name: eats-catalog-secret
+          restartPolicy: OnFailure
