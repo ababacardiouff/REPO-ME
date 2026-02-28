@@ -9,7 +9,8 @@ export async function runWeeklyPayouts() {
   const vendors = await commissionService.listVendorsWithUnpaidBalances();
 
   for (const vendorId of vendors) {
-    const balance = await commissionService.getVendorBalance(vendorId);
+    const payoutCutoff = new Date();
+    const balance = await commissionService.getVendorBalance(vendorId, payoutCutoff);
     if (balance <= 0) {
       continue;
     }
@@ -20,7 +21,7 @@ export async function runWeeklyPayouts() {
         amount: Number(balance.toFixed(2)),
         currency: "USD"
       });
-      await commissionService.markAsPaid(vendorId);
+      await commissionService.markAsPaid(vendorId, payoutCutoff);
       console.log(`Paid out ${balance.toFixed(2)} USD to ${vendorId}`);
     } catch (err) {
       console.error(`Failed payout for ${vendorId}`, err);
