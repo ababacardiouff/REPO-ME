@@ -1,0 +1,22 @@
+image:
+  repository: molam-eats/vendor-profiles
+  tag: latest
+  pullPolicy: Always
+
+service:
+  type: ClusterIP
+  port: 3000
+
+resources:
+  limits:
+    cpu: 500m
+    memory: 512Mi
+  requests:
+    cpu: 200m
+    memory: 256Mi
+
+env:
+  NODE_ENV: production
+  DATABASE_URL: postgresql://molam:password@postgres:5432/eats
+  REDIS_URL: redis://redis:6379
+  MOLAM_ID_URL: https://id.molam.com

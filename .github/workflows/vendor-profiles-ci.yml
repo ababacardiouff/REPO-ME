@@ -1,0 +1,87 @@
+name: CI/CD - Vendor Profiles (Molam Eats)
+
+on:
+  push:
+    branches: ["main", "develop"]
+    paths:
+      - "apps/eats-service/src/modules/vendor-profiles/**"
+      - "apps/eats-frontend/src/views/vendor/**"
+      - "apps/eats-frontend/src/components/vendor/**"
+      - "tests/**"
+      - "Dockerfile"
+      - "helm/**"
+  pull_request:
+    branches: ["main", "develop"]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 18
+          cache: yarn
+
+      - name: Install dependencies
+        run: yarn install --frozen-lockfile
+
+      - name: Lint
+        run: yarn lint
+
+      - name: Build
+        run: yarn build
+
+      - name: Run Unit Tests (Jest)
+        run: yarn test:unit --ci --runInBand
+
+      - name: Run E2E Tests
+        run: yarn test:e2e --ci --runInBand
+
+  docker:
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Log in to Docker Hub
+        uses: docker/login-action@v2
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Build Docker image
+        run: |
+          docker build -t molam-eats/vendor-profiles:${{ github.sha }} .
+          docker tag molam-eats/vendor-profiles:${{ github.sha }} molam-eats/vendor-profiles:latest
+
+      - name: Push Docker image
+        run: |
+          docker push molam-eats/vendor-profiles:${{ github.sha }}
+          docker push molam-eats/vendor-profiles:latest
+
+  deploy:
+    runs-on: ubuntu-latest
+    needs: docker
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Helm
+        uses: azure/setup-helm@v3
+
+      - name: Set Kubeconfig
+        run: echo "${{ secrets.KUBECONFIG }}" > kubeconfig.yaml
+        env:
+          KUBECONFIG: kubeconfig.yaml
+
+      - name: Helm Upgrade Vendor Profiles
+        run: |
+          helm upgrade --install vendor-profiles-eats ./helm/vendor-profiles \
+            --set image.repository=molam-eats/vendor-profiles \
+            --set image.tag=${{ github.sha }} \
+            --namespace molam-eats --create-namespace
+
+      - name: Run DB migrations
+        run: yarn typeorm migration:run

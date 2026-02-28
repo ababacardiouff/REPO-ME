@@ -1,0 +1,8 @@
+vendorProfiles:
+  enabled: true
+  roles:
+    - Admin
+    - Manager
+    - Marketer
+    - Accountant
+    - ExternalAgent
