@@ -5,11 +5,15 @@ on: [push]
 jobs:
   test:
     runs-on: ubuntu-latest
+    env:
+      DATABASE_URL: postgresql://postgres:password@localhost:5432/postgres?schema=public
     services:
       postgres:
         image: postgres:15
         env:
+          POSTGRES_USER: postgres
           POSTGRES_PASSWORD: password
+          POSTGRES_DB: postgres
         ports:
           - 5432:5432
     steps:
