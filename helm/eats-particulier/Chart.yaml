@@ -1,0 +1,6 @@
+apiVersion: v2
+name: eats-particulier
+description: Molam Eats - Particulier Account Service
+type: application
+version: 0.1.0
+appVersion: "1.0.0"

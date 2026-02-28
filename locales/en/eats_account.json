@@ -1,0 +1,15 @@
+{
+  "eats": {
+    "signup": {
+      "title": "Activate your Molam Eats account",
+      "subtitle": "Your Molam profile is ready — activate Eats with one click",
+      "button": "Activate Eats",
+      "loading": "Activating..."
+    },
+    "dashboard": {
+      "title": "Eats Dashboard",
+      "profile": "My profile",
+      "orders": "My orders"
+    }
+  }
+}

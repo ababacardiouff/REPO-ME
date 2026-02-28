@@ -289,3 +289,65 @@ model Event {
 
   @@map("eats_refund_events")
 }
+
+model EatsUser {
+  id             String   @id @default(uuid())
+  molamId        String   @unique @map("molam_id")
+  country        String
+  currency       String
+  language       String
+  displayName    String?  @map("display_name")
+  email          String?
+  phone          String?
+  docContainerId String?  @map("doc_container_id")
+  createdAt      DateTime @default(now()) @map("created_at")
+  updatedAt      DateTime @updatedAt @map("updated_at")
+
+  addresses EatsUserAddress[]
+  history   EatsUserHistory[]
+  sessions  EatsUserSession[]
+
+  @@map("eats_users")
+}
+
+model EatsUserAddress {
+  id         String   @id @default(uuid())
+  userId     String   @map("user_id")
+  label      String?
+  line1      String?
+  line2      String?
+  city       String?
+  postalCode String?  @map("postal_code")
+  country    String?
+  lat        Float?
+  lon        Float?
+  isDefault  Boolean  @default(false) @map("is_default")
+  createdAt  DateTime @default(now()) @map("created_at")
+
+  user EatsUser @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("eats_user_addresses")
+}
+
+model EatsUserHistory {
+  id        String   @id @default(uuid())
+  userId    String   @map("user_id")
+  kind      String
+  payload   Json
+  createdAt DateTime @default(now()) @map("created_at")
+
+  user EatsUser @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("eats_user_history")
+}
+
+model EatsUserSession {
+  id         String   @id @default(uuid())
+  userId     String   @map("user_id")
+  deviceInfo Json?    @map("device_info")
+  lastSeen   DateTime @default(now()) @map("last_seen")
+
+  user EatsUser @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("eats_user_sessions")
+}
