@@ -1,0 +1,12 @@
+image:
+  repository: ghcr.io/molam/eats-surge
+  tag: "0.1.0"
+
+replicaCount: 2
+
+env:
+  DATABASE_URL: ""
+  KAFKA_BROKERS: ""
+  FATIMA_URL: ""
+  FATIMA_KEY: ""
+  REDIS_URL: ""

@@ -371,8 +371,29 @@ model EatsRestaurant {
   schedule   EatsSchedule?
   orderLoads EatsOrderLoad[]
   holidays   EatsHoliday[]
+  surgeRules EatsSurgeRule[]
 
   @@map("eats_restaurants")
+}
+
+model EatsSurgeRule {
+  id                      String         @id @default(uuid())
+  restaurantId            String?        @map("restaurant_id")
+  scopeType               String         @map("scope_type")
+  scopeValue              String?        @map("scope_value")
+  name                    Json
+  priority                Int            @default(100)
+  enabled                 Boolean        @default(true)
+  conditions              Json
+  action                  Json
+  timeWindows             Json           @default("[]") @map("time_windows")
+  maxDailyIncreasePercent Int            @default(50) @map("max_daily_increase_percent")
+  createdAt               DateTime       @default(now()) @map("created_at")
+  updatedAt               DateTime       @updatedAt @map("updated_at")
+
+  restaurant EatsRestaurant? @relation(fields: [restaurantId], references: [id])
+
+  @@map("eats_surge_rules")
 }
 
 model EatsCatalogCategory {

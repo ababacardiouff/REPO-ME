@@ -1,0 +1,41 @@
+name: CI & Deploy Eats Surge
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  build-test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 18
+      - run: npm ci
+      - run: npm run build
+      - run: npm test
+
+  deploy:
+    needs: build-test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Setup kube
+        uses: azure/setup-kubectl@v3
+        with:
+          version: latest
+      - name: Configure kubeconfig
+        env:
+          KUBE_CONFIG_DATA: ${{ secrets.KUBE_CONFIG }}
+        run: |
+          echo "$KUBE_CONFIG_DATA" | base64 --decode > kubeconfig
+          export KUBECONFIG=$PWD/kubeconfig
+          kubectl get ns || true
+      - name: Setup helm
+        uses: azure/setup-helm@v3
+      - name: Helm upgrade
+        run: |
+          helm upgrade --install eats-surge helm/eats-surge --namespace molam \
+            --set image.repository=${{ secrets.DOCKER_REGISTRY }}/eats-surge \
+            --set image.tag=${{ github.sha }}

@@ -2,3 +2,9 @@ molam.moderation.requests
 molam.moderation.responses
 molam.notifications
 molam.talk.messages
+eats.surge.rule.created
+eats.surge.rule.updated
+eats.surge.rule.deleted
+eats.surge.evaluated
+eats.surge.changed
+eats.surge.alerts

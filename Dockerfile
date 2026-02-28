@@ -1,15 +1,15 @@
-FROM node:20-alpine AS builder
+FROM node:18-alpine AS builder
 WORKDIR /app
-COPY package*.json pnpm-lock.yaml* ./
+COPY package*.json ./
 RUN npm ci
 COPY . .
 RUN npm run build
 
-FROM node:20-alpine
+FROM node:18-alpine
 WORKDIR /app
 ENV NODE_ENV=production
+COPY --from=builder /app/package*.json ./
+COPY --from=builder /app/node_modules ./node_modules
 COPY --from=builder /app/dist ./dist
-COPY package*.json ./
-RUN npm ci --omit=dev
-EXPOSE 3000
+EXPOSE 3000 9100
 CMD ["node", "dist/index.js"]
