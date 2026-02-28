@@ -1,3 +1,4 @@
+const crypto = require("node:crypto");
 const { Pool } = require("pg");
 
 const N = process.env.SEED_COUNT ? parseInt(process.env.SEED_COUNT, 10) : 10000;
@@ -9,6 +10,7 @@ const currencies = ["XOF", "USD", "EUR", "GHS"];
 const locales = ["fr", "en", "wo"];
 const providers = ["MolamPay", "Stripe", "Visa", "Mastercard"];
 const statuses = ["PENDING", "PREPARING", "ON_THE_WAY", "DELIVERED", "CANCELLED"];
+const RESET_DB = process.env.RESET_DB === "true";
 
 function randomItem(items) {
   return items[Math.floor(Math.random() * items.length)];
@@ -64,6 +66,11 @@ async function seed() {
   try {
     console.log(`🚀 Seeding ${N} Molam Eats profiles in batches of ${BATCH_SIZE}...`);
     await client.query("BEGIN");
+
+    if (RESET_DB) {
+      await client.query("TRUNCATE TABLE eats_orders, eats_payment_methods, eats_addresses, eats_profiles RESTART IDENTITY CASCADE");
+      console.log("🔄 Existing Eats profile data reset before seeding.");
+    }
 
     let batch = [];
     for (let i = 0; i < N; i += 1) {
