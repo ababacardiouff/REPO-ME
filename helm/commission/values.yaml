@@ -1,0 +1,11 @@
+image:
+  repository: molam-eats/commission
+  tag: latest
+
+service:
+  type: ClusterIP
+  port: 3000
+
+env:
+  MOLAM_PAY_URL: "https://pay.molam.com/api"
+  DATABASE_URL: "postgresql://molam:password@postgres:5432/eats"

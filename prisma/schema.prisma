@@ -546,3 +546,16 @@ model EatsHoliday {
   @@index([restaurantId])
   @@map("eats_holidays")
 }
+
+model Commission {
+  id               String   @id @default(uuid())
+  orderId          String   @unique
+  vendorId         String
+  commissionAmount Decimal  @db.Decimal(10, 2)
+  vendorEarning    Decimal  @db.Decimal(10, 2)
+  paidOut          Boolean  @default(false)
+  createdAt        DateTime @default(now())
+
+  @@index([vendorId, paidOut])
+  @@map("commissions")
+}
