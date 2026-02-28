@@ -351,3 +351,90 @@ model EatsUserSession {
 
   @@map("eats_user_sessions")
 }
+
+model EatsRestaurant {
+  id          String    @id @default(uuid())
+  vendorId    String?   @map("vendor_id")
+  molamId     String    @map("molam_id")
+  name        Json
+  slug        String    @unique
+  description Json?
+  logoUrl     String?   @map("logo_url")
+  country     String?
+  currency    String?
+  language    String?
+  createdAt   DateTime  @default(now()) @map("created_at")
+  updatedAt   DateTime  @updatedAt @map("updated_at")
+
+  categories EatsCatalogCategory[]
+  items      EatsCatalogItem[]
+
+  @@map("eats_restaurants")
+}
+
+model EatsCatalogCategory {
+  id           String   @id @default(uuid())
+  restaurantId String   @map("restaurant_id")
+  code         String
+  name         Json
+  position     Int      @default(0)
+  visible      Boolean  @default(true)
+  createdAt    DateTime @default(now()) @map("created_at")
+
+  restaurant EatsRestaurant  @relation(fields: [restaurantId], references: [id], onDelete: Cascade)
+  items      EatsCatalogItem[]
+
+  @@map("eats_catalog_categories")
+}
+
+model EatsCatalogItem {
+  id              String   @id @default(uuid())
+  restaurantId    String   @map("restaurant_id")
+  categoryId      String?  @map("category_id")
+  sku             String?  @unique
+  name            Json
+  description     Json?
+  images          Json?
+  price           Decimal  @db.Decimal(12, 2)
+  currency        String
+  active          Boolean  @default(true)
+  stock           Int?
+  prepTimeMinutes Int      @default(0) @map("prep_time_minutes")
+  isDeliveryOnly  Boolean  @default(false) @map("is_delivery_only")
+  externalFlags   Json?    @map("external_flags")
+  createdAt       DateTime @default(now()) @map("created_at")
+  updatedAt       DateTime @updatedAt @map("updated_at")
+
+  restaurant EatsRestaurant      @relation(fields: [restaurantId], references: [id], onDelete: Cascade)
+  category   EatsCatalogCategory? @relation(fields: [categoryId], references: [id], onDelete: SetNull)
+  variants   EatsCatalogItemVariant[]
+
+  @@map("eats_catalog_items")
+}
+
+model EatsCatalogItemVariant {
+  id         String   @id @default(uuid())
+  itemId      String   @map("item_id")
+  code       String
+  name       Json
+  priceDelta Decimal  @default(0) @map("price_delta") @db.Decimal(12, 2)
+  isDefault  Boolean  @default(false) @map("is_default")
+  position   Int      @default(0)
+  createdAt  DateTime @default(now()) @map("created_at")
+
+  item EatsCatalogItem @relation(fields: [itemId], references: [id], onDelete: Cascade)
+
+  @@map("eats_catalog_item_variants")
+}
+
+model EatsCatalogAudit {
+  id           String   @id @default(uuid())
+  actorMolamId String?  @map("actor_molam_id")
+  action       String
+  targetType   String   @map("target_type")
+  targetId     String?  @map("target_id")
+  payload      Json?
+  createdAt    DateTime @default(now()) @map("created_at")
+
+  @@map("eats_catalog_audit")
+}

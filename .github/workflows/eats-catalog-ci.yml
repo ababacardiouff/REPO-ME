@@ -1,0 +1,41 @@
+name: Eats Catalog CI
+
+on:
+  push:
+    paths:
+      - "src/**"
+      - "apps/eats-frontend/**"
+      - "prisma/**"
+      - "migrations/015_create_eats_catalog.sql"
+  pull_request:
+    paths:
+      - "src/**"
+      - "apps/eats-frontend/**"
+      - "prisma/**"
+      - "migrations/015_create_eats_catalog.sql"
+
+jobs:
+  test_build:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:15
+        env:
+          POSTGRES_PASSWORD: password
+        ports:
+          - "5432:5432"
+    steps:
+      - uses: actions/checkout@v3
+      - name: Setup Node
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18
+      - name: Install & Test
+        run: |
+          npm ci
+          npx prisma migrate deploy --schema=prisma/schema.prisma || true
+          npm test
+      - name: Build Docker
+        run: docker build -t registry.molam.com/eats-catalog:${{ github.sha }} .
+      - name: Push (requires secrets)
+        run: echo "push step omitted"

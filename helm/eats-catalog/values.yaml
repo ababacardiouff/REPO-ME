@@ -1,0 +1,26 @@
+replicaCount: 2
+
+image:
+  repository: registry.molam.com/eats-catalog
+  tag: "1.0.0"
+
+env:
+  DATABASE_URL: ""
+  KAFKA_BROKERS: ""
+  FATIMA_URL: ""
+  FATIMA_KEY: ""
+  OBJECT_STORE_ENDPOINT: ""
+  OBJECT_STORE_KEY: ""
+  OBJECT_STORE_SECRET: ""
+
+resources: {}
+
+service:
+  type: ClusterIP
+  port: 80
+
+autoscaling:
+  enabled: true
+  minReplicas: 2
+  maxReplicas: 6
+  targetCPUUtilizationPercentage: 75
