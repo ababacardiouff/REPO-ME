@@ -1,0 +1,29 @@
+name: Eats Particulier CI
+
+on:
+  push:
+    paths:
+      - "apps/eats-particulier/**"
+      - "apps/eats-frontend/**"
+      - ".github/workflows/eats-particulier-ci.yml"
+
+jobs:
+  test-build-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Setup Node
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18
+      - name: Install deps & test
+        run: |
+          npm ci
+          npm test -- apps/eats-particulier/tests/account.test.ts
+      - name: Build Docker Images
+        run: |
+          docker build -t registry.molam.com/eats-particulier:${{ github.sha }} .
+          docker build -t registry.molam.com/eats-frontend:${{ github.sha }} apps/eats-frontend
+      - name: Push & Deploy (need secrets)
+        run: |
+          echo "PUSH & HELM DEPLOY (skipped in CI snippet)"

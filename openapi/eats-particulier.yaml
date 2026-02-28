@@ -1,0 +1,22 @@
+openapi: 3.0.1
+info:
+  title: Molam Eats Particulier API
+  version: "1.0.0"
+paths:
+  /accounts/activate:
+    post:
+      summary: Activate Eats account using Molam ID JWT
+      responses:
+        "200":
+          description: account activated
+  /accounts/me:
+    get:
+      summary: return the currently linked eats account
+      responses:
+        "200":
+          description: OK
+  /accounts/addresses:
+    get:
+      summary: list user addresses
+    post:
+      summary: create an address

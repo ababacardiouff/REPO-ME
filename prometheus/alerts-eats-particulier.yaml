@@ -1,0 +1,17 @@
+groups:
+  - name: eats-particulier-alerts
+    rules:
+      - alert: ActivationFailuresHigh
+        expr: increase(http_requests_total{service="eats-particulier",status=~"5.."}[5m]) > 5
+        for: 5m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Activation failures are above threshold"
+      - alert: DBConnectionErrorsHigh
+        expr: increase(db_connection_errors_total{service="eats-particulier"}[1m]) > 3
+        for: 1m
+        labels:
+          severity: critical
+        annotations:
+          summary: "DB connection errors are above threshold"

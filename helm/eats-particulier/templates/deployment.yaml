@@ -1,0 +1,42 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: eats-particulier
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      app: eats-particulier
+  template:
+    metadata:
+      labels:
+        app: eats-particulier
+    spec:
+      containers:
+        - name: eats-particulier
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          ports:
+            - containerPort: 4001
+          env:
+            - name: DATABASE_URL
+              valueFrom:
+                secretKeyRef:
+                  name: eats-particulier-secrets
+                  key: DATABASE_URL
+            - name: MOLAM_ID_JWT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: eats-particulier-secrets
+                  key: MOLAM_ID_JWT_SECRET
+            - name: FATIMA_URL
+              valueFrom:
+                secretKeyRef:
+                  name: eats-particulier-secrets
+                  key: FATIMA_URL
+            - name: FATIMA_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: eats-particulier-secrets
+                  key: FATIMA_KEY
+          resources:
+{{ toYaml .Values.resources | indent 12 }}
