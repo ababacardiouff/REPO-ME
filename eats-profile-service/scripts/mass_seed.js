@@ -1,3 +1,4 @@
+const crypto = require("node:crypto");
 const { Pool } = require("pg");
 
 const N = process.env.SEED_COUNT ? parseInt(process.env.SEED_COUNT, 10) : 1000;
