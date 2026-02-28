@@ -1,0 +1,22 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: eats-holiday
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: eats-holiday
+  template:
+    metadata:
+      labels:
+        app: eats-holiday
+    spec:
+      containers:
+        - name: eats-holiday
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          ports:
+            - containerPort: 3000
+          envFrom:
+            - secretRef:
+                name: eats-holiday-secret

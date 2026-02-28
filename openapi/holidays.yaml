@@ -1,0 +1,28 @@
+openapi: 3.0.3
+info:
+  title: Molam Eats Holidays API
+  version: "1.0"
+paths:
+  /api/holidays/restaurants/{restId}/holidays:
+    get:
+      summary: List holidays for restaurant
+      parameters:
+        - name: restId
+          in: path
+          required: true
+          schema: { type: string }
+      responses:
+        '200':
+          description: OK
+  /api/holidays:
+    post:
+      summary: Create holiday
+      responses:
+        '201':
+          description: Created
+  /api/holidays/restaurants/{restId}/effective-pricing:
+    post:
+      summary: Compute effective pricing for a datetime
+      responses:
+        '200':
+          description: Pricing computed

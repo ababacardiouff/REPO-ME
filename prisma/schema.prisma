@@ -370,6 +370,7 @@ model EatsRestaurant {
   items      EatsCatalogItem[]
   schedule   EatsSchedule?
   orderLoads EatsOrderLoad[]
+  holidays   EatsHoliday[]
 
   @@map("eats_restaurants")
 }
@@ -499,4 +500,28 @@ model EatsOrderLoad {
   @@unique([restaurantId, windowStart, windowEnd])
   @@index([restaurantId, windowStart, windowEnd])
   @@map("eats_order_load")
+}
+
+
+model EatsHoliday {
+  id                String   @id @default(uuid())
+  restaurantId      String?  @map("restaurant_id")
+  scopeType         String   @map("scope_type")
+  scopeValue        String?  @map("scope_value")
+  name              Json
+  startDate         DateTime @map("start_date")
+  endDate           DateTime @map("end_date")
+  recurringRule     String?  @map("recurring_rule")
+  isBlackout        Boolean  @default(false) @map("is_blackout")
+  pricingAdjustment Json?    @map("pricing_adjustment")
+  appliesTo         Json     @default("[]") @map("applies_to")
+  priority          Int      @default(10)
+  createdAt         DateTime @default(now()) @map("created_at")
+  updatedAt         DateTime @updatedAt @map("updated_at")
+
+  restaurant EatsRestaurant? @relation(fields: [restaurantId], references: [id], onDelete: Cascade)
+
+  @@index([scopeType, scopeValue])
+  @@index([restaurantId])
+  @@map("eats_holidays")
 }

@@ -1,0 +1,26 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: eats-holiday-notifier
+spec:
+  schedule: "0 2 * * *"
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          serviceAccountName: eats-holiday-sa
+          containers:
+            - name: notifier
+              image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+              command: ["node", "dist/cron/holidayNotifier.js"]
+              envFrom:
+                - secretRef:
+                    name: eats-holiday-secret
+              resources:
+                requests:
+                  cpu: "100m"
+                  memory: "128Mi"
+                limits:
+                  cpu: "500m"
+                  memory: "512Mi"
+          restartPolicy: OnFailure
