@@ -92,16 +92,29 @@ export async function evaluate(restaurantId: string, context: EvalContext) {
   }
 
   const cap = Math.max(0, ...applicable.map((r) => r.maxDailyIncreasePercent || 0));
-  for (const adj of finalAdjustments) {
+  const pendingIncrease = finalAdjustments.reduce((total, adj) => {
     if (adj.action?.type === "percent" && typeof adj.action.value === "number") {
-      await addDailyIncrease(restaurantId, adj.action.value);
+      return total + adj.action.value;
     }
-  }
+    return total;
+  }, 0);
 
   const currentDayIncrease = await getDailyIncrease(restaurantId);
-  if (cap > 0 && currentDayIncrease > cap) {
+  if (cap > 0 && currentDayIncrease + pendingIncrease > cap) {
     finalAdjustments = [];
-    await publishEvent("eats.surge.alerts", { restaurantId, reason: "DAILY_CAP_EXCEEDED", currentDayIncrease, cap });
+    await publishEvent("eats.surge.alerts", {
+      restaurantId,
+      reason: "DAILY_CAP_EXCEEDED",
+      currentDayIncrease,
+      pendingIncrease,
+      cap
+    });
+  } else {
+    for (const adj of finalAdjustments) {
+      if (adj.action?.type === "percent" && typeof adj.action.value === "number") {
+        await addDailyIncrease(restaurantId, adj.action.value);
+      }
+    }
   }
 
   await publishEvent("eats.surge.evaluated", { restaurantId, at: atIso, adjustments: finalAdjustments });
@@ -111,7 +124,9 @@ export async function evaluate(restaurantId: string, context: EvalContext) {
 
 function isWindowMatch(timeWindows: unknown, atIso: string, timezone: string) {
   const d = new Date(atIso);
-  const weekday = d.getUTCDay();
+  const weekdayName = new Intl.DateTimeFormat("en-US", { timeZone: timezone, weekday: "short" }).format(d);
+  const weekdayByName: Record<string, number> = { Sun: 0, Mon: 1, Tue: 2, Wed: 3, Thu: 4, Fri: 5, Sat: 6 };
+  const weekday = weekdayByName[weekdayName] ?? d.getUTCDay();
   const hhmm = new Intl.DateTimeFormat("en-GB", { timeZone: timezone, hour: "2-digit", minute: "2-digit", hour12: false }).format(d);
   const windows = Array.isArray(timeWindows) ? timeWindows : [];
   if (!windows.length) return true;
